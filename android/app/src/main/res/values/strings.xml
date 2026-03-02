@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Spice Krewe</string>
+    <string name="title_activity_main">Spice Krewe</string>
+    <string name="package_name">com.spicekrewe.app</string>
+    <string name="custom_url_scheme">com.spicekrewe.app</string>
+</resources>
