@@ -1,32 +1,65 @@
 import { Calendar, MapPin, Clock, Users } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { api } from '../services/api';
+
+interface Event {
+  id?: number;
+  title: string;
+  date: string;
+  time: string;
+  location: string;
+  attendees: number;
+  description: string;
+}
 
 export default function Events() {
-  const upcomingEvents = [
-    {
-      title: 'Summer Social Mixer',
-      date: 'June 15, 2026',
-      time: '6:00 PM - 10:00 PM',
-      location: 'Downtown Community Center',
-      attendees: 120,
-      description: 'Join us for an evening of networking, live music, and delicious food as we celebrate the start of summer.',
-    },
-    {
-      title: 'Cultural Celebration Festival',
-      date: 'July 20, 2026',
-      time: '2:00 PM - 8:00 PM',
-      location: 'City Park Pavilion',
-      attendees: 250,
-      description: 'Experience diverse cultures through food, music, dance, and art in our biggest event of the year.',
-    },
-    {
-      title: 'Community Game Night',
-      date: 'August 5, 2026',
-      time: '7:00 PM - 11:00 PM',
-      location: 'Spice Krewe Headquarters',
-      attendees: 60,
-      description: 'A fun-filled evening of board games, card games, and friendly competition with fellow krewe members.',
-    },
-  ];
+  const [events, setEvents] = useState<Event[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchEvents = async () => {
+      setLoading(true);
+      const response = await api.getEvents();
+
+      if (response.success && response.data) {
+        setEvents(response.data);
+        setError(null);
+      } else {
+        setError(response.error || 'Failed to load events');
+        setEvents([
+          {
+            title: 'Summer Social Mixer',
+            date: 'June 15, 2026',
+            time: '6:00 PM - 10:00 PM',
+            location: 'Downtown Community Center',
+            attendees: 120,
+            description: 'Join us for an evening of networking, live music, and delicious food as we celebrate the start of summer.',
+          },
+          {
+            title: 'Cultural Celebration Festival',
+            date: 'July 20, 2026',
+            time: '2:00 PM - 8:00 PM',
+            location: 'City Park Pavilion',
+            attendees: 250,
+            description: 'Experience diverse cultures through food, music, dance, and art in our biggest event of the year.',
+          },
+          {
+            title: 'Community Game Night',
+            date: 'August 5, 2026',
+            time: '7:00 PM - 11:00 PM',
+            location: 'Spice Krewe Headquarters',
+            attendees: 60,
+            description: 'A fun-filled evening of board games, card games, and friendly competition with fellow krewe members.',
+          },
+        ]);
+      }
+
+      setLoading(false);
+    };
+
+    fetchEvents();
+  }, []);
 
   return (
     <section id="events" className="py-20 bg-white">
@@ -39,10 +72,21 @@ export default function Events() {
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
             Discover exciting opportunities to connect, celebrate, and create lasting memories with our community.
           </p>
+          {error && (
+            <div className="mt-4 text-sm text-amber-600 bg-amber-50 px-4 py-2 rounded-lg inline-block">
+              Using sample data. API: {error}
+            </div>
+          )}
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-          {upcomingEvents.map((event, index) => (
+        {loading ? (
+          <div className="text-center py-12">
+            <div className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-spice-purple border-r-transparent"></div>
+            <p className="mt-4 text-gray-600">Loading events...</p>
+          </div>
+        ) : (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+            {events.map((event, index) => (
             <div
               key={index}
               className="bg-gradient-to-br from-gray-50 to-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-100 transform hover:-translate-y-2"
@@ -83,8 +127,9 @@ export default function Events() {
                 </button>
               </div>
             </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
 
         <div className="text-center">
           <button className="bg-gray-100 text-gray-800 px-8 py-4 rounded-full font-semibold hover:bg-gray-200 transition-colors duration-200 shadow-md hover:shadow-lg">
