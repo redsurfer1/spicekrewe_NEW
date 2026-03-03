@@ -3,8 +3,8 @@ import { Helmet } from 'react-helmet-async';
 const DEFAULT_TITLE = 'Spice Krewe – Community, Culture & Spice';
 const DEFAULT_DESCRIPTION =
   'Spice Krewe is a community organization in Memphis, TN bringing people together through events, culture, and shared experiences. Visit us for spices, events, and community.';
-const DEFAULT_IMAGE = 'https://yoursite.com/og-image.png';
-const SITE_URL = 'https://yoursite.com';
+const DEFAULT_IMAGE = 'https://redsurfer1.github.io/spicekrewe/og-image.png';
+const SITE_URL = 'https://redsurfer1.github.io/spicekrewe';
 
 interface SEOProps {
   title?: string;

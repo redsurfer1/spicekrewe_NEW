@@ -7,8 +7,14 @@ import KreweMap from './components/KreweMap';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
 import SEO from './components/SEO';
+import OGBanner from './components/OGBanner';
 
 function App() {
+  // Temporary route for OG banner generation (remove after saving og-image.png)
+  // if (window.location.pathname === '/og-banner') {
+  //   return <OGBanner />;
+  // }
+
   return (
     <div className="min-h-screen bg-white">
       <SEO />
