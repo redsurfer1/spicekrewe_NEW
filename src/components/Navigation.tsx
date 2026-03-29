@@ -28,10 +28,18 @@ export default function Navbar() {
       <nav className="relative mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-2.5 sm:px-6 lg:px-8 min-h-[56px]">
         <Link
           to="/"
-          className="z-[2] shrink-0 text-[17px] font-semibold tracking-tight text-white no-underline"
+          className="z-[2] shrink-0 no-underline flex items-center min-h-[44px]"
           aria-label="Spice Krewe home"
         >
-          Spice <span className="text-sk-purple-light">Krewe</span>
+          <img
+            src="/assets/brand/logo-primary.png"
+            alt="Spice Krewe Logo"
+            width={200}
+            height={40}
+            className="h-8 w-auto max-h-8 sm:h-10 sm:max-h-10 object-contain object-left"
+            loading="eager"
+            decoding="async"
+          />
         </Link>
 
         {/* Desktop center links */}

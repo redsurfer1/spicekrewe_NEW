@@ -24,9 +24,16 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid md:grid-cols-4 gap-10 mb-10">
           <div className="md:col-span-2">
-            <div className="text-2xl sm:text-3xl font-sans mb-4 font-semibold tracking-tight">
-              <span style={{ color: '#fff' }}>Spice </span>
-              <span style={{ color: 'var(--sk-muted-purple)' }}>Krewe</span>
+            <div className="mb-4">
+              <img
+                src="/assets/brand/logo-white.svg"
+                alt="Spice Krewe Logo"
+                width={200}
+                height={32}
+                className="h-8 w-auto max-w-[200px] object-contain object-left"
+                loading="eager"
+                decoding="async"
+              />
             </div>
             <p className="mb-6 max-w-md" style={{ color: 'rgba(255,255,255,0.7)', lineHeight: 1.65, fontSize: 15 }}>
               Community · Culture · Culinary talent

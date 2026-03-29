@@ -62,8 +62,8 @@ export default function ForTeams() {
                 maxWidth: 520,
               }}
             >
-              Access credentialed formulation, sensory, and content specialists through a single operating layer.
-              Protect culinary IP while you accelerate pipeline decisions—from bench to launch.
+              You bring the craft—we make it easy to scale. Access credentialed formulation, sensory, and content
+              specialists through one operating layer, protect culinary IP, and move faster from bench to launch.
             </p>
             <a
               href={MAILTO_HREF}
@@ -97,6 +97,56 @@ export default function ForTeams() {
               <li>Structured handoffs between formulation, regulatory touchpoints, and creative</li>
               <li>Measurable milestones aligned to your stage-gate process</li>
             </ul>
+          </div>
+        </div>
+      </section>
+
+      {/* Proven voice — adapted from legacy “buyer stories”; reframed for B2B trust */}
+      <section style={{ padding: '56px 24px', background: 'var(--sk-body-bg)' }}>
+        <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+          <p
+            style={{
+              margin: '0 0 20px',
+              fontSize: 11,
+              fontWeight: 700,
+              letterSpacing: '0.14em',
+              textTransform: 'uppercase',
+              color: 'var(--sk-gold)',
+              textAlign: 'center',
+            }}
+          >
+            Voices from the network
+          </p>
+          <h2
+            style={{
+              margin: '0 0 32px',
+              fontSize: 'clamp(1.35rem, 3vw, 1.5rem)',
+              fontWeight: 700,
+              color: 'var(--sk-navy)',
+              textAlign: 'center',
+              maxWidth: 640,
+              marginLeft: 'auto',
+              marginRight: 'auto',
+            }}
+          >
+            Proof points teams still quote years later
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <TestimonialCard
+              quote="Spice Krewe Culinary is an amazing resource for anyone in the startup space."
+              attribution="Alex Saunders"
+              role="Founder / operator"
+            />
+            <TestimonialCard
+              quote="People love our culinary services, and we love Spice Krewe Culinary."
+              attribution="Ricky Jones"
+              role="Brand & creative lead"
+            />
+            <TestimonialCard
+              quote="There is no way I could have produced anything without Spice Krewe Culinary."
+              attribution="Melissa Ross"
+              role="Producer / growth"
+            />
           </div>
         </div>
       </section>
@@ -165,18 +215,18 @@ export default function ForTeams() {
           <ol style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 28 }}>
             <ProcessStep
               n={1}
-              title="Submit brief"
-              text="Define objectives, constraints, and success criteria. We structure the intake for IP-safe review and routing."
+              title="Define your scope"
+              text="Post the work—briefs, constraints, and success criteria—so we can route credentialed pros to each track (like “create the gig,” enterprise-grade)."
             />
             <ProcessStep
               n={2}
-              title="Match with pros"
-              text="We align vetted talent to each workstream—R&D, sensory, styling, or content—under a single engagement frame."
+              title="Deliver at Krewe standard"
+              text="Execute with vetted talent across R&D, sensory, styling, and content. One operating rhythm, visible milestones, fewer handoff gaps."
             />
             <ProcessStep
               n={3}
-              title="Execute project"
-              text="Milestones, approvals, and documentation flow through one operating rhythm so leadership has clear line of sight."
+              title="Commercial clarity"
+              text="Consolidated billing options and clear payment milestones—so finance sees one thread while your team ships."
             />
           </ol>
         </div>
@@ -218,6 +268,29 @@ export default function ForTeams() {
 
       <Footer />
     </div>
+  );
+}
+
+function TestimonialCard({ quote, attribution, role }: { quote: string; attribution: string; role: string }) {
+  return (
+    <figure
+      style={{
+        margin: 0,
+        borderRadius: 'var(--sk-radius-lg)',
+        border: '1px solid var(--sk-card-border)',
+        background: 'var(--sk-surface)',
+        padding: '22px 20px',
+        boxShadow: '0 8px 24px rgba(26, 26, 46, 0.06)',
+      }}
+    >
+      <blockquote style={{ margin: 0, padding: 0 }}>
+        <p style={{ margin: '0 0 16px', fontSize: 15, lineHeight: 1.65, color: 'var(--sk-text-muted)' }}>
+          “{quote}”
+        </p>
+        <figcaption style={{ fontSize: 14, fontWeight: 700, color: 'var(--sk-navy)' }}>{attribution}</figcaption>
+        <p style={{ margin: '4px 0 0', fontSize: 13, color: 'var(--sk-text-subtle)' }}>{role}</p>
+      </blockquote>
+    </figure>
   );
 }
 

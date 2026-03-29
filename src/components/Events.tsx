@@ -70,13 +70,46 @@ export default function Events() {
           </h2>
           <div className="w-24 h-1 bg-gradient-to-r from-spice-purple to-spice-blue mx-auto mb-6"></div>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Discover exciting opportunities to connect, celebrate, and create lasting memories with our community.
+            From crawfish boils to mixers and cultural nights—real moments from the Krewe archive, plus what is on the calendar next.
           </p>
           {error && (
             <div className="mt-4 text-sm text-amber-600 bg-amber-50 px-4 py-2 rounded-lg inline-block">
               Using sample data. API: {error}
             </div>
           )}
+        </div>
+
+        <div className="mb-12 grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-5xl mx-auto">
+          <div className="overflow-hidden rounded-sk-md border border-sk-card-border shadow-md">
+            <img
+              src="/assets/images/heritage/crawfish-sack.jpg"
+              alt="Crawfish harvest — Krewe heritage photo"
+              className="w-full h-48 object-cover"
+              loading="lazy"
+              decoding="async"
+            />
+            <p className="text-xs text-center text-gray-600 py-2 px-2">Heritage: crawfish season</p>
+          </div>
+          <div className="overflow-hidden rounded-sk-md border border-sk-card-border shadow-md">
+            <img
+              src="/assets/images/heritage/crawfish-boil.jpg"
+              alt="Outdoor boil — community"
+              className="w-full h-48 object-cover"
+              loading="lazy"
+              decoding="async"
+            />
+            <p className="text-xs text-center text-gray-600 py-2 px-2">Community boil</p>
+          </div>
+          <div className="overflow-hidden rounded-sk-md border border-sk-card-border shadow-md">
+            <img
+              src="/assets/images/heritage/community-moment.jpg"
+              alt="Krewe community"
+              className="w-full h-48 object-cover"
+              loading="lazy"
+              decoding="async"
+            />
+            <p className="text-xs text-center text-gray-600 py-2 px-2">In the field</p>
+          </div>
         </div>
 
         {loading ? (

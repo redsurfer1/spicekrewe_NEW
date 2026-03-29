@@ -33,7 +33,8 @@ export default function About() {
   }, []);
 
   const defaultContent = {
-    story: "Spice Krewe originated in 2010 as a private dinner gathering with a few talented chefs and entrepreneurs. We created a platform to cultivate existing relationships, develop new ones, and build an ecosystem where professional development is the byproduct of personal connections.",
+    story:
+      "Spice Krewe originated in 2010 as a private dinner gathering with a few talented chefs and entrepreneurs. From crawfish seasons to pop-ups and collabs, we cultivated relationships first—then built the rails so professionals could work the way they want: clear scope, great delivery, and outcomes that feel inevitable.",
     vision: "As the industry continues to evolve, Spice Krewe is building the infrastructure to support the next generation of culinary talent. We're developing a comprehensive ecosystem that combines marketplace dynamics, educational excellence, and innovative service delivery.",
     pillars: {
       hire: "Our dynamic marketplace connects talented culinary professionals with opportunities that match their skills and aspirations. Whether you're seeking full-time positions, freelance gigs, or collaborative projects, Spice Krewe facilitates meaningful employment connections that benefit both professionals and employers.",
@@ -73,13 +74,20 @@ export default function About() {
                 <p className="text-lg text-gray-700 leading-relaxed">
                   Today, Spice Krewe continues to bring people together, creating opportunities for collaboration, learning, and growth within the culinary industry and beyond.
                 </p>
+                <div className="rounded-sk-md border border-sk-card-border bg-white p-5 shadow-sm">
+                  <p className="text-sm font-semibold text-spice-purple mb-2">What the community says</p>
+                  <p className="text-gray-700 italic leading-relaxed">
+                    “People love our culinary services, and we love Spice Krewe Culinary.”
+                  </p>
+                  <p className="text-sm text-gray-500 mt-2">— Voice from our legacy marketplace pages, carried forward</p>
+                </div>
               </div>
 
               <div className="relative flex justify-center items-center">
                 <div className="absolute inset-0 bg-gradient-to-br from-spice-purple to-spice-blue rounded-3xl transform rotate-3 opacity-20"></div>
                 <div className="relative bg-white p-8 border border-sk-card-border rounded-sk-md shadow-2xl">
                   <img
-                    src="/assets/images/brand/logo-primary.png"
+                    src="/assets/brand/logo-primary.png"
                     alt="Spice Krewe — verified culinary talent network"
                     className="w-full h-auto max-w-md mx-auto"
                     loading="lazy"
@@ -95,6 +103,39 @@ export default function About() {
                   />
                 </div>
               </div>
+            </div>
+
+            <div className="mb-16 grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-6xl mx-auto">
+              <figure className="m-0 overflow-hidden rounded-sk-md border border-sk-card-border shadow-md bg-white">
+                <img
+                  src="/assets/images/heritage/crawfish-season.jpg"
+                  alt="Crawfish season gathering"
+                  className="w-full h-44 object-cover"
+                  loading="lazy"
+                  decoding="async"
+                />
+                <figcaption className="px-3 py-2 text-xs text-gray-600 text-center">Heritage: crawfish season</figcaption>
+              </figure>
+              <figure className="m-0 overflow-hidden rounded-sk-md border border-sk-card-border shadow-md bg-white">
+                <img
+                  src="/assets/images/heritage/crawfish-boil.jpg"
+                  alt="Crawfish boil community moment"
+                  className="w-full h-44 object-cover"
+                  loading="lazy"
+                  decoding="async"
+                />
+                <figcaption className="px-3 py-2 text-xs text-gray-600 text-center">Community boil</figcaption>
+              </figure>
+              <figure className="m-0 overflow-hidden rounded-sk-md border border-sk-card-border shadow-md bg-white">
+                <img
+                  src="/assets/images/heritage/community-moment.jpg"
+                  alt="Spice Krewe community moment"
+                  className="w-full h-44 object-cover"
+                  loading="lazy"
+                  decoding="async"
+                />
+                <figcaption className="px-3 py-2 text-xs text-gray-600 text-center">Krewe in the field</figcaption>
+              </figure>
             </div>
 
             <div className="mb-20 bg-white p-10 border border-sk-card-border rounded-sk-md shadow-lg">
