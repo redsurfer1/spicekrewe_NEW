@@ -16,7 +16,10 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-sk-body-bg">
-      <SEO />
+      <SEO
+        description="Culinary operating system for food brands and restaurant groups—vetted R&D talent, briefs, and secure collaboration."
+        ogDescription="Culinary operating system for food brands and restaurant groups—vetted R&D talent, briefs, and secure collaboration."
+      />
       <Navbar />
       <section style={{ background: '#1a1a2e', padding: '60px 32px 48px', textAlign: 'center' }}>
         <div

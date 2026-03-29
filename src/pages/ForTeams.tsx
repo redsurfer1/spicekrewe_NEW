@@ -11,10 +11,10 @@ export default function ForTeams() {
     <div className="min-h-screen flex flex-col" style={{ background: 'var(--sk-body-bg)' }}>
       <SEO
         title="Culinary R&D for Teams | Spice Krewe"
-        description="Enterprise retainer access to vetted culinary R&D, formulation, and content intelligence. Secure collaboration and consolidated billing."
+        description="Enterprise-grade Culinary-as-a-Service and machine-readable flavor datasets for food brands."
         path="/for-teams"
         ogTitle="Culinary R&D for Teams | Spice Krewe"
-        ogDescription="Scale culinary IP and intelligence without adding headcount. Spice Krewe for food brands and restaurant groups."
+        ogDescription="Enterprise-grade Culinary-as-a-Service and machine-readable flavor datasets for food brands."
       />
       <Navbar />
 

@@ -175,7 +175,13 @@ export default function FindTalent() {
 
   return (
     <div className="flex min-h-screen flex-col bg-sk-body-bg">
-      <SEO title="Find culinary talent – Spice Krewe" path="/talent" />
+      <SEO
+        title="Find culinary talent – Spice Krewe"
+        description="Source vetted culinary R&D professionals, recipe developers, and flavor consultants."
+        path="/talent"
+        ogTitle="Find culinary talent – Spice Krewe"
+        ogDescription="Source vetted culinary R&D professionals, recipe developers, and flavor consultants."
+      />
       <Navbar />
 
       <div className="mx-auto flex w-full max-w-[1400px] flex-1 flex-col gap-6 px-4 py-8 sm:px-6 lg:flex-row lg:px-8">

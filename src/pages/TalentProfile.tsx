@@ -35,6 +35,10 @@ export default function TalentProfile() {
   const hireHref = row ? `/hire?talentId=${encodeURIComponent(row.id)}` : '/hire';
   const bookLabel = row ? `Book ${firstNameFromFullName(row.name)}` : 'Post a project';
 
+  const metaDescription = row
+    ? `${row.name} | ${row.specialty} specializing in culinary innovation.`
+    : 'Browse verified culinary R&D professionals on Spice Krewe.';
+
   const showRate = Boolean(row?.rate?.trim());
   const showRating = row != null && row.rating > 0;
   const showReviews = row != null && row.reviews > 0;
@@ -44,7 +48,8 @@ export default function TalentProfile() {
       <SEO
         title={`${displayName} – Spice Krewe`}
         path={id ? `/talent/${id}` : '/talent'}
-        description={row ? `${row.specialty} — ${row.name} on Spice Krewe.` : undefined}
+        description={metaDescription}
+        ogDescription={metaDescription}
         structuredData={structuredData}
       />
       <Navbar />

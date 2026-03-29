@@ -50,9 +50,7 @@ export default function About() {
     <section id="about" className="py-20 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
-          <h2 className="text-4xl sm:text-5xl font-bold text-spice-purple mb-4">
-            About Spice Krewe: Hire Vetted Culinary Professionals
-          </h2>
+          <h2 className="text-4xl sm:text-5xl font-bold text-spice-purple mb-4">About Spice Krewe</h2>
         </div>
 
         {loading ? (
