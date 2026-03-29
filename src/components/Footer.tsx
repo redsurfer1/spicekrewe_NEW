@@ -120,17 +120,11 @@ export default function Footer() {
                   How it works
                 </Link>
               </li>
-            </ul>
-            <h3 className={`${headingClass} mt-8`}>Contact</h3>
-            <ul className="space-y-2" style={{ color: 'rgba(255,255,255,0.7)', fontSize: 14 }}>
-              <li>123 Community Street</li>
-              <li>Memphis, TN 38107</li>
-              <li className="mt-3">
-                <a href="mailto:hello@spicekrewe.com" style={{ color: 'var(--sk-muted-purple)' }} className="underline-offset-2 hover:underline">
-                  hello@spicekrewe.com
-                </a>
+              <li>
+                <Link to="/contact#message" className={`opacity-90 ${linkHoverClass}`} style={linkMuted}>
+                  Contact us
+                </Link>
               </li>
-              <li>901-295-9491</li>
             </ul>
           </div>
         </div>

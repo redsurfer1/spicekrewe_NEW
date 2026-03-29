@@ -10,6 +10,7 @@ import HireSuccess from './pages/HireSuccess';
 import JoinAsProf from './pages/JoinAsProf';
 import AdminDashboard from './components/AdminDashboard';
 import PrivacyPage from './pages/PrivacyPage';
+import ContactPage from './pages/Contact';
 import AdminHealthPage from './pages/admin/Health';
 import { AppProvider } from './contexts/AppContext';
 
@@ -30,6 +31,7 @@ function App() {
           <Route path="/for-teams" element={<ForTeams />} />
           <Route path="/login" element={<PlaceholderPage />} />
           <Route path="/privacy" element={<PrivacyPage />} />
+          <Route path="/contact" element={<ContactPage />} />
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/admin/health" element={<AdminHealthPage />} />
         </Routes>

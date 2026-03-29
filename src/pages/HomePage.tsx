@@ -3,7 +3,6 @@ import Navbar from '../components/Navigation';
 import About from '../components/About';
 import Events from '../components/Events';
 import KreweMap from '../components/KreweMap';
-import Contact from '../components/Contact';
 import Footer from '../components/Footer';
 import B2BBanner from '../components/B2BBanner';
 import ProjectSpotlight from '../components/ProjectSpotlight';
@@ -181,7 +180,20 @@ export default function HomePage() {
           </div>
         </section>
       )}
-      <Contact />
+      <section className="py-16 sm:py-20 bg-gray-50 border-t border-gray-100">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
+          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3">Have a question?</h2>
+          <p className="text-gray-600 mb-8 text-lg">
+            Send us a message—we will get back to you as soon as we can.
+          </p>
+          <Link
+            to="/contact#message"
+            className="inline-flex min-h-[44px] items-center justify-center rounded-sk-md bg-spice-purple px-8 py-3 text-[15px] font-semibold text-white no-underline shadow-md shadow-spice-purple/30 hover:bg-spice-blue transition-colors"
+          >
+            Contact us
+          </Link>
+        </div>
+      </section>
       <B2BBanner />
       <Footer />
     </div>

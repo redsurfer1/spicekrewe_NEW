@@ -1,6 +1,6 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Mail, Phone, MapPin, Send } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { Send } from 'lucide-react';
 import { api } from '../services/api';
 
 export default function Contact() {
@@ -17,6 +17,15 @@ export default function Contact() {
   const [newsletterBusy, setNewsletterBusy] = useState(false);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.hash !== '#message') return;
+    const t = window.setTimeout(() => {
+      document.getElementById('message')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 0);
+    return () => window.clearTimeout(t);
+  }, [location.pathname, location.hash]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -58,125 +67,22 @@ export default function Contact() {
   return (
     <section id="contact" className="py-20 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
+        <div className="text-center mb-12 lg:mb-14">
           <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">
             Get In <span className="text-spice-purple">Touch</span>
           </h2>
-          <div className="w-24 h-1 bg-gradient-to-r from-spice-purple to-spice-blue mx-auto mb-6"></div>
+          <div className="w-24 h-1 bg-gradient-to-r from-spice-purple to-spice-blue mx-auto mb-6" />
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Ready to join our community? We'd love to hear from you. Send us a message and we'll respond as soon as possible.
+            Ready to join our community? We'd love to hear from you. Send us a message and we'll respond as soon as
+            possible.
           </p>
         </div>
 
-        <div className="grid lg:grid-cols-2 gap-12">
-          <div>
-            <div className="bg-white border border-sk-card-border rounded-sk-md shadow-xl p-8 mb-8">
-              <h3 className="text-2xl font-bold text-gray-900 mb-6">Contact Information</h3>
-
-              <div className="space-y-6">
-                <div className="flex items-start">
-                  <div className="bg-spice-purple/10 p-3 rounded-lg mr-4">
-                    <Mail className="text-spice-purple" size={24} aria-hidden />
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-gray-900 mb-1">Email</h4>
-                    <p className="text-gray-600">hello@spicekrewe.com</p>
-                  </div>
-                </div>
-
-                <div className="flex items-start">
-                  <div className="bg-spice-blue/10 p-3 rounded-lg mr-4">
-                    <Phone className="text-spice-blue" size={24} aria-hidden />
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-gray-900 mb-1">Phone</h4>
-                    <p className="text-gray-600">901-295-9491</p>
-                  </div>
-                </div>
-
-                <div className="flex items-start">
-                  <div className="bg-spice-purple/10 p-3 rounded-lg mr-4">
-                    <MapPin className="text-spice-purple" size={24} aria-hidden />
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-gray-900 mb-1">Location</h4>
-                    <p className="text-gray-600">123 Community Street<br />Memphis, TN 38107</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-gradient-to-br from-spice-purple to-spice-blue border border-sk-card-border rounded-sk-md shadow-xl p-8 text-white">
-              <h3 className="text-2xl font-bold mb-4">Join Our Newsletter</h3>
-              <p className="mb-6 text-white/90">
-                Stay updated with our latest events, news, and community highlights.
-              </p>
-              <div className="flex flex-col gap-3">
-                <div className="flex gap-2">
-                  <label htmlFor="newsletter-email" className="sr-only">
-                    Email address for newsletter
-                  </label>
-                  <input
-                    id="newsletter-email"
-                    type="email"
-                    name="newsletter-email"
-                    autoComplete="email"
-                    value={newsletterEmail}
-                    onChange={(e) => setNewsletterEmail(e.target.value)}
-                    placeholder="Enter your email"
-                    className="flex-1 px-4 py-3 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-white"
-                  />
-                  <button
-                    type="button"
-                    disabled={newsletterBusy || !newsletterConsent || !newsletterEmail.trim()}
-                    onClick={async () => {
-                      if (!newsletterConsent) {
-                        alert('Please confirm consent to receive marketing emails.');
-                        return;
-                      }
-                      setNewsletterBusy(true);
-                      try {
-                        const result = await api.subscribeNewsletter({ email: newsletterEmail.trim() });
-                        if (result.success) {
-                          alert('Thanks — you are subscribed.');
-                          setNewsletterEmail('');
-                          setNewsletterConsent(false);
-                        } else {
-                          alert(result.error || 'Could not subscribe right now.');
-                        }
-                      } finally {
-                        setNewsletterBusy(false);
-                      }
-                    }}
-                    className="bg-white text-spice-purple px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {newsletterBusy ? '…' : 'Subscribe'}
-                  </button>
-                </div>
-                <label className="flex items-start gap-2 text-sm text-white/95 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={newsletterConsent}
-                    onChange={(e) => setNewsletterConsent(e.target.checked)}
-                    className="mt-1 h-4 w-4 shrink-0 accent-white"
-                  />
-                  <span>
-                    I agree to receive occasional updates about Spice Krewe and accept the processing of my email
-                    as described in the{' '}
-                    <Link to="/privacy" className="underline font-medium">
-                      Privacy Policy
-                    </Link>
-                    .
-                  </span>
-                </label>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white border border-sk-card-border rounded-sk-md shadow-xl p-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-12 items-start">
+          <div className="min-h-[320px] bg-white border border-sk-card-border rounded-sk-md shadow-xl p-8 w-full">
             <h3 className="text-2xl font-bold text-gray-900 mb-6">Send Us a Message</h3>
 
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form id="message" onSubmit={handleSubmit} className="space-y-6">
               <div>
                 <label htmlFor="name" className="block text-sm font-semibold text-gray-700 mb-2">
                   Full Name
@@ -188,7 +94,7 @@ export default function Contact() {
                   value={formData.name}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-spice-purple focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-spice-purple focus:border-transparent min-h-[44px]"
                   placeholder="John Doe"
                 />
               </div>
@@ -204,7 +110,7 @@ export default function Contact() {
                   value={formData.email}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-spice-purple focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-spice-purple focus:border-transparent min-h-[44px]"
                   placeholder="john@example.com"
                 />
               </div>
@@ -219,17 +125,17 @@ export default function Contact() {
                   name="phone"
                   value={formData.phone}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-spice-purple focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-spice-purple focus:border-transparent min-h-[44px]"
                   placeholder="(555) 123-4567"
                 />
               </div>
 
               <div>
-                <label htmlFor="message" className="block text-sm font-semibold text-gray-700 mb-2">
+                <label htmlFor="message-body" className="block text-sm font-semibold text-gray-700 mb-2">
                   Message
                 </label>
                 <textarea
-                  id="message"
+                  id="message-body"
                   name="message"
                   value={formData.message}
                   onChange={handleChange}
@@ -248,8 +154,7 @@ export default function Contact() {
                   className="mt-1 h-4 w-4 shrink-0 accent-spice-purple"
                 />
                 <span>
-                  I consent to Spice Krewe processing my contact details to respond to this inquiry, as described
-                  in the{' '}
+                  I consent to Spice Krewe processing my contact details to respond to this inquiry, as described in the{' '}
                   <Link to="/privacy" className="text-spice-purple font-medium underline-offset-2 hover:underline">
                     Privacy Policy
                   </Link>
@@ -260,12 +165,78 @@ export default function Contact() {
               <button
                 type="submit"
                 disabled={isSubmitting || !contactDataConsent}
-                className="w-full bg-spice-purple text-white py-4 rounded-lg font-semibold hover:bg-spice-blue transition-colors duration-200 shadow-md hover:shadow-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full bg-spice-purple text-white py-4 rounded-lg font-semibold hover:bg-spice-blue transition-colors duration-200 shadow-md hover:shadow-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed min-h-[48px]"
               >
                 {isSubmitting ? 'Sending...' : 'Send Message'}
                 <Send size={20} aria-hidden />
               </button>
             </form>
+          </div>
+
+          <div className="min-h-[320px] bg-gradient-to-br from-spice-purple to-spice-blue border border-sk-card-border rounded-sk-md shadow-xl p-8 text-white w-full">
+            <h3 className="text-2xl font-bold mb-4">Join Our Newsletter</h3>
+            <p className="mb-6 text-white/90">
+              Stay updated with our latest events, news, and community highlights.
+            </p>
+            <div className="flex flex-col gap-3">
+              <div className="flex flex-col sm:flex-row gap-2">
+                <label htmlFor="newsletter-email" className="sr-only">
+                  Email address for newsletter
+                </label>
+                <input
+                  id="newsletter-email"
+                  type="email"
+                  name="newsletter-email"
+                  autoComplete="email"
+                  value={newsletterEmail}
+                  onChange={(e) => setNewsletterEmail(e.target.value)}
+                  placeholder="Enter your email"
+                  className="flex-1 min-w-0 px-4 py-3 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-white min-h-[44px]"
+                />
+                <button
+                  type="button"
+                  disabled={newsletterBusy || !newsletterConsent || !newsletterEmail.trim()}
+                  onClick={async () => {
+                    if (!newsletterConsent) {
+                      alert('Please confirm consent to receive marketing emails.');
+                      return;
+                    }
+                    setNewsletterBusy(true);
+                    try {
+                      const result = await api.subscribeNewsletter({ email: newsletterEmail.trim() });
+                      if (result.success) {
+                        alert('Thanks — you are subscribed.');
+                        setNewsletterEmail('');
+                        setNewsletterConsent(false);
+                      } else {
+                        alert(result.error || 'Could not subscribe right now.');
+                      }
+                    } finally {
+                      setNewsletterBusy(false);
+                    }
+                  }}
+                  className="shrink-0 bg-white text-spice-purple px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px]"
+                >
+                  {newsletterBusy ? '…' : 'Subscribe'}
+                </button>
+              </div>
+              <label className="flex items-start gap-2 text-sm text-white/95 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={newsletterConsent}
+                  onChange={(e) => setNewsletterConsent(e.target.checked)}
+                  className="mt-1 h-4 w-4 shrink-0 accent-white"
+                />
+                <span>
+                  I agree to receive occasional updates about Spice Krewe and accept the processing of my email as
+                  described in the{' '}
+                  <Link to="/privacy" className="underline font-medium">
+                    Privacy Policy
+                  </Link>
+                  .
+                </span>
+              </label>
+            </div>
           </div>
         </div>
       </div>
