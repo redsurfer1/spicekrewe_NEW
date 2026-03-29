@@ -1,6 +1,7 @@
 import type { CSSProperties } from 'react';
 import { Link } from 'react-router-dom';
 import { Facebook, Instagram, Twitter, Youtube } from 'lucide-react';
+import SpiceKreweWordmark from './SpiceKreweWordmark';
 
 const linkMuted: CSSProperties = {
   color: 'rgba(255,255,255,0.72)',
@@ -25,20 +26,11 @@ export default function Footer() {
         <div className="grid md:grid-cols-4 gap-10 mb-10">
           <div className="md:col-span-2">
             <div className="mb-4 flex flex-col items-start gap-0">
-              <span className="inline-flex shrink-0 items-center justify-center rounded-lg bg-white p-2 shadow-sm">
-                <img
-                  src="/assets/brand/logo-primary.png"
-                  alt="Spice Krewe Logo"
-                  width={220}
-                  height={48}
-                  className="h-12 w-auto max-h-12 max-w-[min(100%,280px)] object-contain object-left"
-                  loading="eager"
-                  decoding="async"
-                />
-              </span>
+              <span className="sr-only">Spice Krewe</span>
+              <SpiceKreweWordmark className="h-9 w-auto max-w-[min(100%,280px)] sm:h-10" />
             </div>
             <p className="mb-6 max-w-md" style={{ color: 'rgba(255,255,255,0.7)', lineHeight: 1.65, fontSize: 15 }}>
-              Hire Vetted Culinary Professionals
+              Community · Culture · Culinary talent
             </p>
             <div className="flex gap-3">
               <a

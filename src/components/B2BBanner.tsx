@@ -12,12 +12,24 @@ export default function B2BBanner({ talkEmail = DEFAULT_ENTERPRISE_EMAIL }: Prop
   const mailto = `mailto:${encodeURIComponent(talkEmail)}?subject=${encodeURIComponent('Spice Krewe — Teams / retainer inquiry')}`;
 
   return (
-    <section className="bg-sk-purple px-6 py-12">
+    <section
+      className="relative z-[1] bg-sk-purple px-6 py-12 text-white"
+      style={{ backgroundColor: 'var(--sk-purple)', color: '#fff' }}
+      aria-labelledby="sk-b2b-banner-heading"
+    >
       <div className="mx-auto flex max-w-[960px] flex-col items-start gap-4">
-        <div className="text-[11px] font-medium uppercase tracking-[0.12em] text-sk-purple-light">
+        <p
+          id="sk-b2b-banner-eyebrow"
+          className="m-0 text-xs font-semibold uppercase tracking-[0.12em] text-sk-gold"
+          style={{ color: 'var(--sk-gold)' }}
+        >
           For food brands + restaurants
-        </div>
-        <h2 className="m-0 max-w-[640px] text-[18px] font-medium leading-snug tracking-tight text-white">
+        </p>
+        <h2
+          id="sk-b2b-banner-heading"
+          className="m-0 max-w-[640px] text-xl font-bold leading-snug tracking-tight text-white sm:text-2xl"
+          style={{ color: '#fff' }}
+        >
           On-demand culinary R&amp;D — without the headcount
         </h2>
         <p className="m-0 max-w-[560px] text-base leading-relaxed text-sk-fg-on-dark">

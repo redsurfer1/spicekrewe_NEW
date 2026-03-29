@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
+import SpiceKreweWordmark from './SpiceKreweWordmark';
 
 const navLinks: { to: string; label: string; title?: string }[] = [
   { to: '/talent', label: 'Find talent' },
@@ -31,17 +32,7 @@ export default function Navbar() {
           className="z-[2] shrink-0 no-underline flex items-center min-h-[44px]"
           aria-label="Spice Krewe home"
         >
-          <span className="inline-flex shrink-0 items-center justify-center rounded-full bg-white p-1.5 shadow-sm">
-            <img
-              src="/assets/brand/logo-primary.png"
-              alt="Spice Krewe Logo"
-              width={200}
-              height={32}
-              className="h-8 w-auto max-h-8 object-contain object-center"
-              loading="eager"
-              decoding="async"
-            />
-          </span>
+          <SpiceKreweWordmark className="h-7 shrink-0 sm:h-8" />
         </Link>
 
         {/* Desktop center links */}

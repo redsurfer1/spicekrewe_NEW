@@ -6,7 +6,9 @@ import KreweMap from '../components/KreweMap';
 import Footer from '../components/Footer';
 import B2BBanner from '../components/B2BBanner';
 import ProjectSpotlight from '../components/ProjectSpotlight';
+import TalentCard from '../components/TalentCard';
 import SEO from '../components/SEO';
+import { TALENT_FALLBACK } from '../data/talent';
 import { useApp } from '../contexts/AppContext';
 
 export default function HomePage() {
@@ -43,7 +45,8 @@ export default function HomePage() {
             maxWidth: 720,
           }}
         >
-          Hire vetted culinary professionals
+          Hire vetted{' '}
+          <span className="text-sk-purple-light">culinary professionals</span>
         </h1>
         <p
           style={{
@@ -161,6 +164,73 @@ export default function HomePage() {
           )}
         </div>
       </section>
+
+      <section className="bg-[var(--sk-body-bg)] py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-10">
+            <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">
+              Featured <span className="text-spice-purple">culinary talent</span>
+            </h2>
+            <div className="w-24 h-1 bg-gradient-to-r from-spice-purple to-spice-blue mx-auto" />
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {TALENT_FALLBACK.slice(0, 4).map((professional) => (
+              <TalentCard key={professional.id} professional={professional} appendTalentIdQuery />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-[var(--sk-surface)] py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-center text-4xl sm:text-5xl font-bold text-sk-navy mb-10">How it works</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
+            <article className="flex flex-col rounded-sk-lg border border-sk-card-border bg-white p-6 sm:p-7 h-full">
+              <span
+                className="mb-4 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-base font-extrabold text-white"
+                style={{ background: 'var(--sk-purple)' }}
+                aria-hidden
+              >
+                01
+              </span>
+              <h3 className="m-0 mb-2 text-lg font-bold text-sk-navy">Post your brief</h3>
+              <p className="m-0 text-[15px] leading-relaxed text-sk-text-muted flex-1">
+                Share scope, constraints, and success criteria—like defining the gig, with room for enterprise nuance when
+                you need it.
+              </p>
+            </article>
+            <article className="flex flex-col rounded-sk-lg border border-sk-card-border bg-white p-6 sm:p-7 h-full">
+              <span
+                className="mb-4 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-base font-extrabold text-white"
+                style={{ background: 'var(--sk-blue)' }}
+                aria-hidden
+              >
+                02
+              </span>
+              <h3 className="m-0 mb-2 text-lg font-bold text-sk-navy">Get matched</h3>
+              <p className="m-0 text-[15px] leading-relaxed text-sk-text-muted flex-1">
+                We route credentialed Krewe talent to your brief so you review fit, credentials, and rates before work
+                begins.
+              </p>
+            </article>
+            <article className="flex flex-col rounded-sk-lg border border-sk-card-border bg-white p-6 sm:p-7 h-full">
+              <span
+                className="mb-4 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-base font-extrabold"
+                style={{ background: 'var(--sk-gold)', color: 'var(--sk-navy)' }}
+                aria-hidden
+              >
+                03
+              </span>
+              <h3 className="m-0 mb-2 text-lg font-bold text-sk-navy">Work with the Krewe</h3>
+              <p className="m-0 text-[15px] leading-relaxed text-sk-text-muted flex-1">
+                Collaborate through milestones, protect proprietary detail with our privacy workflow, and pay with clear
+                commercial threads.
+              </p>
+            </article>
+          </div>
+        </div>
+      </section>
+
       <ProjectSpotlight />
       <About />
       <Events />

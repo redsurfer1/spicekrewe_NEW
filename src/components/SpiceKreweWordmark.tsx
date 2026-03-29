@@ -4,13 +4,12 @@
 export default function SpiceKreweWordmark({ className = '' }: { className?: string }) {
   return (
     <svg
-      className={className}
+      className={`block w-auto max-w-full ${className}`.trim()}
       role="img"
       aria-hidden
-      width={168}
-      height={28}
       viewBox="0 0 168 28"
       xmlns="http://www.w3.org/2000/svg"
+      preserveAspectRatio="xMinYMid meet"
     >
       <text
         x={0}
