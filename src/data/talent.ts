@@ -1,10 +1,10 @@
 import type { Result } from '../lib/types/results';
 import type { TalentRecord } from '../types/talentRecord';
-import { fetchProfessionals } from '../lib/airtable';
+import { fetchProfessionalsFromSupabase } from '../lib/professionalsFromSupabase';
 
 export type { TalentRecord } from '../types/talentRecord';
 
-/** Offline / fallback seed — used when Airtable is unavailable or returns an error.
+/** Offline / fallback seed — used when Supabase is unavailable or returns an error.
  * Server predictive matchmaking mirrors this roster in `server/data/talentRoster.ts` — keep both in sync. */
 export const TALENT_FALLBACK: TalentRecord[] = [
   {
@@ -91,12 +91,15 @@ export type CulinaryCategory = (typeof CULINARY_CATEGORIES)[number];
 export type GetTalentError = 'PROFESSIONAL_NOT_FOUND';
 
 /**
- * Loads directory from Airtable when configured; otherwise returns the hardcoded Krewe.
+ * Loads directory from Supabase `professionals` when `VITE_SUPABASE_*` is configured; otherwise seed.
  * Safe for Capacitor / offline: never throws.
  */
 export async function fetchTalentDirectory(): Promise<TalentRecord[]> {
   try {
-    const res = await fetchProfessionals();
+    if (!import.meta.env.VITE_SUPABASE_URL?.trim() || !import.meta.env.VITE_SUPABASE_ANON_KEY?.trim()) {
+      return [...TALENT_FALLBACK];
+    }
+    const res = await fetchProfessionalsFromSupabase();
     if (res.success && res.data.length > 0) {
       return res.data;
     }

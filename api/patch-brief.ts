@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { z } from 'zod';
-import { patchBriefRecord } from '../server/lib/airtable-brief';
+import { patchBriefRecord } from '../server/lib/supabase-brief';
 import { createRequestId } from '../server/lib/request-id';
 
 const BodySchema = z.object({

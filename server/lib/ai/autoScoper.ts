@@ -82,7 +82,7 @@ function parseTrdJson(text: string): TechnicalRequirementsDocument {
 }
 
 /**
- * Serializes the TRD for Airtable long text (readable + machine-parseable).
+ * Serializes the TRD for JSONB / API storage (readable + machine-parseable).
  */
 export function formatTrdForAirtable(trd: TechnicalRequirementsDocument): string {
   const payload = {

@@ -18,7 +18,7 @@ type MatchmakerLogRow = {
 
 type HealthPayload = {
   generatedAt: string;
-  airtable: { status: string; detail?: string };
+  supabase: { status: string; detail?: string; latencyMs?: number };
   stripeWebhook: { status: string; listener: string };
   recentBriefSyncs: Array<{
     recordIdSuffix: string;
@@ -101,16 +101,19 @@ export default function AdminHealthPage() {
               <div className="rounded-sk-md border border-sk-card-border bg-white p-5 shadow-sm">
                 <div className="flex items-center gap-2 mb-2">
                   <Database className="h-5 w-5 text-spice-purple" aria-hidden />
-                  <h2 className="font-semibold text-gray-900">Airtable (Briefs)</h2>
+                  <h2 className="font-semibold text-gray-900">Supabase (PostgreSQL)</h2>
                 </div>
                 <p className="text-sm text-gray-600">
                   Status:{' '}
-                  <strong className={data.airtable.status === 'connected' ? 'text-green-700' : 'text-red-700'}>
-                    {data.airtable.status}
+                  <strong className={data.supabase.status === 'connected' ? 'text-green-700' : 'text-red-700'}>
+                    {data.supabase.status}
                   </strong>
+                  {typeof data.supabase.latencyMs === 'number' ? (
+                    <span className="text-gray-500"> · ~{data.supabase.latencyMs}ms probe</span>
+                  ) : null}
                 </p>
-                {data.airtable.detail ? (
-                  <p className="mt-2 text-xs text-gray-500 break-words">{data.airtable.detail}</p>
+                {data.supabase.detail ? (
+                  <p className="mt-2 text-xs text-gray-500 break-words">{data.supabase.detail}</p>
                 ) : null}
               </div>
 
@@ -136,8 +139,8 @@ export default function AdminHealthPage() {
               </p>
               {!data.matchmakerLogs || data.matchmakerLogs.length === 0 ? (
                 <p className="text-sm text-gray-600">
-                  No in-process entries yet (cold starts clear memory). After payment, lines also sync to Airtable{' '}
-                  <code className="text-xs bg-gray-100 px-1 rounded">PredictiveMatchSummary</code> when that field exists.
+                  No in-process entries yet (cold starts clear memory).                 After payment, lines also sync to Supabase{' '}
+                  <code className="text-xs bg-gray-100 px-1 rounded">predictive_match_summary</code> when the column is present.
                 </p>
               ) : (
                 <ul className="divide-y divide-gray-100 space-y-0">

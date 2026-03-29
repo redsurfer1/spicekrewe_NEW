@@ -1,6 +1,6 @@
 import type Stripe from 'stripe';
 import type { Result } from './result';
-import { getBriefRecord, isBriefMarkedPaid, patchBriefRecord } from './airtable-brief';
+import { getBriefRecord, isBriefMarkedPaid, patchBriefRecord } from './supabase-brief';
 import {
   buildFallbackTrd,
   formatTrdForAirtable,
@@ -21,15 +21,19 @@ function isFeaturedMatchingCheckout(session: Stripe.Checkout.Session): boolean {
 }
 
 /**
- * After successful Featured payment: generate TRD via Gemini and write to Airtable `TechnicalRequirements`.
+ * After successful Featured payment: generate TRD via Gemini and write to `technical_requirements` (JSONB).
  * Failures are logged; payment state is not rolled back.
  */
 async function syncTechnicalRequirementsFromBrief(
   briefId: string,
   fields: Record<string, unknown>,
 ): Promise<void> {
-  const existing = fields.TechnicalRequirements ?? fields.technicalRequirements;
+  const existing =
+    fields.TechnicalRequirements ?? fields.technicalRequirements ?? fields.technical_requirements;
   if (typeof existing === 'string' && existing.trim().length > 0) {
+    return;
+  }
+  if (existing && typeof existing === 'object' && !Array.isArray(existing) && Object.keys(existing).length > 0) {
     return;
   }
 
@@ -65,7 +69,7 @@ async function syncTechnicalRequirementsFromBrief(
       JSON.stringify({
         audit: true,
         level: 'error',
-        event: 'auto_scoper.airtable_patch_failed',
+        event: 'auto_scoper.brief_patch_failed',
         briefId,
         message: patched.error.message,
       }),
@@ -94,7 +98,7 @@ async function runFeaturedMatchmakerPipeline(briefId: string): Promise<void> {
 }
 
 /**
- * Apply Airtable updates for a completed Checkout session.
+ * Apply Supabase `briefs` updates for a completed Checkout session.
  * Idempotent: skips duplicate Stripe event deliveries and already-paid briefs.
  */
 export async function handleCheckoutSessionCompleted(
@@ -129,6 +133,7 @@ export async function handleCheckoutSessionCompleted(
     PaymentStatus: 'Paid',
     IsActive: true,
     StripeLastWebhookEventId: stripeEventId,
+    stripe_checkout_session_id: session.id,
   });
 
   if (withEventId.success) {

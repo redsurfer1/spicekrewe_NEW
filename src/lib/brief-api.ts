@@ -1,6 +1,6 @@
 /**
  * Project brief writes — always via same-origin `/api/*` serverless routes.
- * Briefs table is never accessed from the browser with a PAT (Flomisma / SOC2 alignment).
+ * Briefs are written only via `/api/*` using the server Supabase service role (SOC2 alignment).
  */
 
 import type { Result } from './types/results';

@@ -131,7 +131,7 @@ export default function AdminDashboard() {
                 <Link to="/admin/health" className="font-semibold text-spice-purple hover:underline">
                   System health dashboard
                 </Link>{' '}
-                — Airtable connectivity, Stripe webhooks, recent brief syncs (obfuscated).
+                — Supabase connectivity, Stripe webhooks, recent brief syncs (obfuscated).
               </p>
             </div>
 

@@ -178,7 +178,7 @@ export default function HireFlow() {
     if (!patched.success) {
       setCheckoutLoading(false);
       setPaymentError(
-        `${patched.error.message} Add a PostingTier field in Airtable or try again.`,
+        `${patched.error.message} Ensure Supabase is configured and posting_tier is allowed, then try again.`,
       );
       return;
     }

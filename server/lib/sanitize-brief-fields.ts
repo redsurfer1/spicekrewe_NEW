@@ -1,6 +1,6 @@
 /**
  * Strip characters that are risky for XSS / log injection in short text fields
- * before persistence (Airtable). Does not replace full HTML encoding — use for
+ * before persistence (Supabase). Does not replace full HTML encoding — use for
  * ProjectTitle / ClientName only; long descriptions are validated separately.
  */
 export function sanitizeBriefShortText(input: string, maxLen: number): string {

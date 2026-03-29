@@ -1,4 +1,4 @@
-/** Shared talent directory shape (seed data + Airtable). */
+/** Shared talent directory shape (seed data + Supabase `professionals`). */
 export type TalentRecord = {
   id: string;
   name: string;

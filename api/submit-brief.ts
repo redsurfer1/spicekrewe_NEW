@@ -1,10 +1,10 @@
 /**
- * Brief intake: creates the Airtable Briefs row.
+ * Brief intake: inserts into Supabase `briefs` (service role).
  * Post-payment: successful Stripe Featured checkout (`spiceKreweCheckout: featured_matching`) triggers
- * Auto-Scoper in `server/lib/webhook-checkout-completed.ts`, which writes `TechnicalRequirements` (TRD JSON).
+ * Auto-Scoper in `server/lib/webhook-checkout-completed.ts`, which writes `technical_requirements` (JSONB).
  */
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { createBriefRecord } from '../server/lib/airtable-brief';
+import { createBriefRecord } from '../server/lib/supabase-brief';
 import { createRequestId } from '../server/lib/request-id';
 import { HireBriefSchema } from '../server/lib/hire-brief-schema';
 import { sanitizeBriefShortText } from '../server/lib/sanitize-brief-fields';

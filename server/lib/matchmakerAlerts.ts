@@ -1,13 +1,9 @@
 import type { TechnicalRequirementsDocument } from './ai/autoScoper';
 import { PROFESSIONAL_ROSTER, type ServerTalentRecord } from '../data/talentRoster';
-import { patchBriefRecord } from './airtable-brief';
+import { patchBriefRecord } from './supabase-brief';
 import { appendMatchmakerLog, type MatchmakerLogEntry } from './matchmakerLogStore';
 
 export type { MatchmakerLogEntry };
-
-/** Airtable long-text / single-line field for durable match lines (optional). */
-const PREDICTIVE_MATCH_FIELD =
-  process.env.AIRTABLE_PREDICTIVE_MATCH_FIELD?.trim() || 'PredictiveMatchSummary';
 
 /**
  * Future: SendGrid (transactional email) / Twilio (SMS) — pass professional CRM contacts when available.
@@ -69,14 +65,20 @@ function splitBriefRequiredSkills(raw: unknown): string[] {
  */
 export function extractSkillNeedlesFromBriefFields(fields: Record<string, unknown>): string[] {
   const out: string[] = [];
-  const tr = fields.TechnicalRequirements ?? fields.technicalRequirements;
-  if (typeof tr === 'string' && tr.trim()) {
+  const tr = fields.TechnicalRequirements ?? fields.technicalRequirements ?? fields.technical_requirements;
+  if (tr && typeof tr === 'object' && tr !== null && !Array.isArray(tr)) {
+    const obj = tr as Record<string, unknown>;
+    const skills = obj.requiredSkillsets ?? obj.required_skillsets;
+    if (Array.isArray(skills)) {
+      out.push(...skills.map((s) => String(s).trim()).filter(Boolean));
+    }
+  } else if (typeof tr === 'string' && tr.trim()) {
     const parsed = parseTechnicalRequirementsJson(tr);
     if (parsed?.requiredSkillsets?.length) {
       out.push(...parsed.requiredSkillsets);
     }
   }
-  const rs = fields.RequiredSkills ?? fields.requiredSkills;
+  const rs = fields.RequiredSkills ?? fields.requiredSkills ?? fields.required_skills;
   out.push(...splitBriefRequiredSkills(rs));
   const seen = new Set<string>();
   return out.filter((s) => {
@@ -144,7 +146,7 @@ function fallbackSkillsFromDescription(fields: Record<string, unknown>): string[
 }
 
 /**
- * Runs after a Featured brief is paid: compares TRD + brief skills to `PROFESSIONAL_ROSTER`, logs match, optional Airtable line.
+ * Runs after a Featured brief is paid: compares TRD + brief skills to `PROFESSIONAL_ROSTER`, logs match, optional `predictive_match_summary` patch.
  */
 export async function runPredictiveMatchmakerAfterFeaturedPayment(
   briefId: string,
@@ -204,20 +206,18 @@ export async function runPredictiveMatchmakerAfterFeaturedPayment(
     }),
   );
 
-  const patchKey = PREDICTIVE_MATCH_FIELD;
   const patched = await patchBriefRecord(briefId, {
-    [patchKey]: message,
-  } as Record<string, string>);
+    predictive_match_summary: message,
+  });
   if (!patched.success) {
     // eslint-disable-next-line no-console
     console.error(
       JSON.stringify({
         audit: true,
         level: 'warn',
-        event: 'matchmaker.airtable_patch_skipped',
+        event: 'matchmaker.brief_patch_skipped',
         briefId,
         detail: patched.error.message,
-        hint: `Add optional Airtable field "${patchKey}" (Long text) or set AIRTABLE_PREDICTIVE_MATCH_FIELD.`,
       }),
     );
   }

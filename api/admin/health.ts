@@ -1,7 +1,11 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { readBearerToken, verifyAdminToken } from '../../server/lib/admin-token';
-import { listRecentBriefsForAudit, pingAirtableBriefsTable } from '../../server/lib/airtable-brief';
-import type { BriefAuditRow } from '../../server/lib/airtable-brief';
+import {
+  listRecentBriefsForAudit,
+  measureSupabaseLatencyMs,
+  pingSupabaseBriefs,
+} from '../../server/lib/supabase-brief';
+import type { BriefAuditRow } from '../../server/lib/supabase-brief';
 import { getRecentMatchmakerLogs } from '../../server/lib/matchmakerAlerts';
 
 function cors(res: VercelResponse, origin: string | undefined): void {
@@ -35,14 +39,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
     process.env.STRIPE_WEBHOOK_SECRET?.trim() && process.env.STRIPE_SECRET_KEY?.trim(),
   );
 
-  const airtablePing = await pingAirtableBriefsTable();
+  const supabasePing = await pingSupabaseBriefs();
+  const latency = await measureSupabaseLatencyMs();
   const recent = await listRecentBriefsForAudit(5);
 
   res.status(200).json({
     generatedAt: new Date().toISOString(),
-    airtable: {
-      status: airtablePing.success ? 'connected' : 'error',
-      detail: airtablePing.success ? undefined : airtablePing.error.message,
+    supabase: {
+      status: supabasePing.success ? 'connected' : 'error',
+      detail: supabasePing.success ? undefined : supabasePing.error.message,
+      latencyMs: latency.success ? latency.data : undefined,
     },
     stripeWebhook: {
       status: stripeWebhookOk ? 'configured' : 'not_configured',
@@ -50,7 +56,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
     },
     recentBriefSyncs: recent.success
       ? recent.data.map((r: BriefAuditRow) => ({
-          recordIdSuffix: r.recordId.replace(/^rec/, '').slice(-6),
+          recordIdSuffix: r.recordId.replace(/-/g, '').slice(-6),
           createdTime: r.createdTime,
           projectTitle: r.projectTitleObfuscated,
           clientName: r.clientNameObfuscated,
