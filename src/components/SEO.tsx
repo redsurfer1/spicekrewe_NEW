@@ -4,7 +4,15 @@ const DEFAULT_TITLE = 'Spice Krewe – Hire Vetted Culinary Professionals';
 const DEFAULT_DESCRIPTION =
   'Access on-demand culinary R&D and vetted professionals for food brands and restaurant groups.';
 const DEFAULT_IMAGE = 'https://spicekrewe.com/og-image.png';
+/** Production origin — no trailing slash (homepage canonical is this exact string). */
 export const SITE_URL = 'https://spicekrewe.com';
+
+function resolveCanonicalUrl(path: string): string {
+  const origin = SITE_URL.replace(/\/$/, '');
+  if (!path) return origin;
+  const segment = path.startsWith('/') ? path : `/${path}`;
+  return `${origin}${segment}`;
+}
 
 interface SEOProps {
   title?: string;
@@ -40,14 +48,16 @@ export default function SEO({
 
   return (
     <Helmet>
+      <link rel="canonical" href={canonicalUrl} />
       <title>{title}</title>
       <meta name="description" content={description} />
       <meta property="og:type" content="website" />
       <meta property="og:title" content={ogTitle} />
       <meta property="og:description" content={ogDescription} />
       <meta property="og:image" content={image} />
-      <meta property="og:url" content={url} />
+      <meta property="og:url" content={canonicalUrl} />
       <meta name="twitter:card" content="summary_large_image" />
+      <meta name="twitter:url" content={canonicalUrl} />
       <meta name="twitter:title" content={ogTitle} />
       <meta name="twitter:description" content={ogDescription} />
       <meta name="twitter:image" content={image} />

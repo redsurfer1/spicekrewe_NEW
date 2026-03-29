@@ -63,13 +63,16 @@ export default function ProductGrid() {
           size={20}
           aria-hidden
         />
+        <label htmlFor="product-grid-search" className="sr-only">
+          Search products by name
+        </label>
         <input
+          id="product-grid-search"
           type="search"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder="Search products by name..."
           className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-spice-purple focus:border-transparent text-gray-900 placeholder-gray-500"
-          aria-label="Search products by name"
         />
       </div>
 

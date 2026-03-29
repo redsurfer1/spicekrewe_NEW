@@ -634,6 +634,7 @@ export default function HireFlow() {
                               {m.name}
                             </Link>
                             <label
+                              htmlFor={`hire-primary-${m.professionalId}`}
                               style={{
                                 display: 'inline-flex',
                                 alignItems: 'center',
@@ -646,6 +647,7 @@ export default function HireFlow() {
                               }}
                             >
                               <input
+                                id={`hire-primary-${m.professionalId}`}
                                 type="checkbox"
                                 checked={primaryInterestTalentIds.includes(m.professionalId)}
                                 onChange={() => togglePrimaryInterest(m.professionalId)}

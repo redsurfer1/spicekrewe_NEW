@@ -59,8 +59,13 @@ export default function HomePage() {
           groups.
         </p>
         <div style={{ display: 'flex', maxWidth: 560, margin: '0 auto 20px', gap: 10 }}>
+          <label htmlFor="home-hero-search" className="sr-only">
+            Search talent by role or specialty
+          </label>
           <input
+            id="home-hero-search"
             type="search"
+            name="q"
             placeholder="Recipe developer, food stylist, private chef..."
             style={{
               flex: 1,

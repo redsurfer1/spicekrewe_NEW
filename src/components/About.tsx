@@ -80,8 +80,10 @@ export default function About() {
                 <div className="relative bg-white p-8 border border-sk-card-border rounded-sk-md shadow-2xl">
                   <img
                     src="/assets/images/brand/logo-primary.png"
-                    alt="Spice Krewe Logo"
+                    alt="Spice Krewe — verified culinary talent network"
                     className="w-full h-auto max-w-md mx-auto"
+                    loading="lazy"
+                    decoding="async"
                     onError={(e) => {
                       const target = e.target as HTMLImageElement;
                       target.style.display = 'none';
@@ -109,7 +111,7 @@ export default function About() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <div className="bg-white p-8 rounded-sk-md border border-sk-card-border border-t-4 border-t-spice-purple shadow-lg hover:shadow-xl transition-all duration-300">
                   <div className="w-16 h-16 bg-spice-purple/10 rounded-xl flex items-center justify-center mb-6 mx-auto">
-                    <Briefcase className="text-spice-purple" size={32} />
+                    <Briefcase className="text-spice-purple" size={32} aria-hidden />
                   </div>
                   <h4 className="text-2xl font-bold text-gray-900 mb-4 text-center">Hire</h4>
                   <h5 className="text-lg font-semibold text-spice-purple mb-3 text-center">The Marketplace</h5>
@@ -120,7 +122,7 @@ export default function About() {
 
                 <div className="bg-white p-8 rounded-sk-md border border-sk-card-border border-t-4 border-t-spice-blue shadow-lg hover:shadow-xl transition-all duration-300">
                   <div className="w-16 h-16 bg-spice-blue/10 rounded-xl flex items-center justify-center mb-6 mx-auto">
-                    <GraduationCap className="text-spice-blue" size={32} />
+                    <GraduationCap className="text-spice-blue" size={32} aria-hidden />
                   </div>
                   <h4 className="text-2xl font-bold text-gray-900 mb-4 text-center">Learn</h4>
                   <h5 className="text-lg font-semibold text-spice-blue mb-3 text-center">The Academy</h5>

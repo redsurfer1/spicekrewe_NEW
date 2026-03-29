@@ -66,7 +66,7 @@ export default function Contact() {
               <div className="space-y-6">
                 <div className="flex items-start">
                   <div className="bg-spice-purple/10 p-3 rounded-lg mr-4">
-                    <Mail className="text-spice-purple" size={24} />
+                    <Mail className="text-spice-purple" size={24} aria-hidden />
                   </div>
                   <div>
                     <h4 className="font-semibold text-gray-900 mb-1">Email</h4>
@@ -86,7 +86,7 @@ export default function Contact() {
 
                 <div className="flex items-start">
                   <div className="bg-spice-purple/10 p-3 rounded-lg mr-4">
-                    <MapPin className="text-spice-purple" size={24} />
+                    <MapPin className="text-spice-purple" size={24} aria-hidden />
                   </div>
                   <div>
                     <h4 className="font-semibold text-gray-900 mb-1">Location</h4>
@@ -102,8 +102,14 @@ export default function Contact() {
                 Stay updated with our latest events, news, and community highlights.
               </p>
               <div className="flex gap-2">
+                <label htmlFor="newsletter-email" className="sr-only">
+                  Email address for newsletter
+                </label>
                 <input
+                  id="newsletter-email"
                   type="email"
+                  name="newsletter-email"
+                  autoComplete="email"
                   placeholder="Enter your email"
                   className="flex-1 px-4 py-3 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-white"
                 />
@@ -187,7 +193,7 @@ export default function Contact() {
                 className="w-full bg-spice-purple text-white py-4 rounded-lg font-semibold hover:bg-spice-blue transition-colors duration-200 shadow-md hover:shadow-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isSubmitting ? 'Sending...' : 'Send Message'}
-                <Send size={20} />
+                <Send size={20} aria-hidden />
               </button>
             </form>
           </div>

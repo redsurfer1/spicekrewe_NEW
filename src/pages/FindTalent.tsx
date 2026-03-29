@@ -221,17 +221,20 @@ export default function FindTalent() {
             </p>
 
             <div className="relative w-full max-w-full sm:max-w-[480px]">
+              <label htmlFor="talent-directory-search" className="sr-only">
+                Search talent by name, role, or specialty
+              </label>
               <Search
                 className="pointer-events-none absolute left-3.5 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-sk-text-soft"
                 strokeWidth={2}
                 aria-hidden
               />
               <input
+                id="talent-directory-search"
                 type="search"
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
                 placeholder="Search by name, role, or specialty…"
-                aria-label="Search talent"
                 className="box-border w-full min-h-[48px] rounded-sk-md border border-sk-card-border bg-white py-3 pl-11 pr-4 text-base text-sk-navy outline-none transition-colors duration-150 focus:border-sk-purple focus:ring-2 focus:ring-sk-purple/25"
               />
             </div>

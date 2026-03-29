@@ -38,7 +38,7 @@ export default function Footer() {
                 style={{ background: 'rgba(77, 47, 145, 0.45)' }}
                 aria-label="Facebook"
               >
-                <Facebook size={20} className="text-white" />
+                <Facebook size={20} className="text-white" aria-hidden />
               </a>
               <a
                 href="#"
@@ -54,7 +54,7 @@ export default function Footer() {
                 style={{ background: 'rgba(77, 47, 145, 0.45)' }}
                 aria-label="Twitter"
               >
-                <Twitter size={20} className="text-white" />
+                <Twitter size={20} className="text-white" aria-hidden />
               </a>
               <a
                 href="#"
@@ -62,7 +62,7 @@ export default function Footer() {
                 style={{ background: 'rgba(77, 47, 145, 0.45)' }}
                 aria-label="Youtube"
               >
-                <Youtube size={20} className="text-white" />
+                <Youtube size={20} className="text-white" aria-hidden />
               </a>
             </div>
           </div>

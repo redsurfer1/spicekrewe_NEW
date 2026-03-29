@@ -29,6 +29,7 @@ export default function Navbar() {
         <Link
           to="/"
           className="z-[2] shrink-0 text-[17px] font-semibold tracking-tight text-white no-underline"
+          aria-label="Spice Krewe home"
         >
           Spice <span className="text-sk-purple-light">Krewe</span>
         </Link>
@@ -66,7 +67,11 @@ export default function Navbar() {
             aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
             onClick={() => setMobileOpen((o) => !o)}
           >
-            {mobileOpen ? <X size={22} className="text-white" strokeWidth={2} /> : <Menu size={22} className="text-white" strokeWidth={2} />}
+            {mobileOpen ? (
+              <X size={22} className="text-white" strokeWidth={2} aria-hidden />
+            ) : (
+              <Menu size={22} className="text-white" strokeWidth={2} aria-hidden />
+            )}
           </button>
         </div>
       </nav>

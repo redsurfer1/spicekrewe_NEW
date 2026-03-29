@@ -31,7 +31,7 @@ export default function AdminDashboard() {
         <div className="bg-white border border-sk-card-border rounded-sk-md shadow-xl p-8 w-full max-w-md">
           <div className="flex items-center justify-center mb-6">
             <div className="bg-spice-purple/10 p-4 rounded-full">
-              <Lock className="w-8 h-8 text-spice-purple" />
+              <Lock className="w-8 h-8 text-spice-purple" aria-hidden />
             </div>
           </div>
           <h1 className="text-2xl font-bold text-gray-900 text-center mb-2">
