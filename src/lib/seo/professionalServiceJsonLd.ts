@@ -1,6 +1,6 @@
 import type { TalentRecord } from '../../types/talentRecord';
 
-const DEFAULT_SITE = 'https://redsurfer1.github.io/spicekrewe';
+const DEFAULT_SITE = 'https://spicekrewe.com';
 
 /**
  * Schema.org ProfessionalService JSON-LD for talent profile pages.

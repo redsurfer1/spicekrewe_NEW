@@ -2,16 +2,14 @@ import { Helmet } from 'react-helmet-async';
 
 const DEFAULT_TITLE = 'Spice Krewe – Hire Vetted Culinary Professionals';
 const DEFAULT_DESCRIPTION =
-  "Connect with vetted chefs, recipe developers, food stylists, and flavor consultants. Credentialed by Spice Krewe's culinary standard.";
-const DEFAULT_OG_TITLE = 'Spice Krewe – Culinary Talent Marketplace';
-const DEFAULT_OG_DESCRIPTION = 'Find the culinary expert your project deserves.';
-const DEFAULT_IMAGE = 'https://redsurfer1.github.io/spicekrewe/og-image.png';
-export const SITE_URL = 'https://redsurfer1.github.io/spicekrewe';
+  'Access on-demand culinary R&D and vetted professionals for food brands and restaurant groups.';
+const DEFAULT_IMAGE = 'https://spicekrewe.com/og-image.png';
+export const SITE_URL = 'https://spicekrewe.com';
 
 interface SEOProps {
   title?: string;
   description?: string;
-  /** Open Graph / Twitter card title (defaults to marketplace headline). */
+  /** Open Graph / Twitter card title (defaults to page title). */
   ogTitle?: string;
   /** Open Graph / Twitter card description. */
   ogDescription?: string;
@@ -25,8 +23,8 @@ interface SEOProps {
 export default function SEO({
   title = DEFAULT_TITLE,
   description = DEFAULT_DESCRIPTION,
-  ogTitle = DEFAULT_OG_TITLE,
-  ogDescription = DEFAULT_OG_DESCRIPTION,
+  ogTitle = DEFAULT_TITLE,
+  ogDescription = DEFAULT_DESCRIPTION,
   image = DEFAULT_IMAGE,
   path = '',
   structuredData,

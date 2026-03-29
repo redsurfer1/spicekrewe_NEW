@@ -44,19 +44,19 @@ export default function HomePage() {
             maxWidth: 720,
           }}
         >
-          Find the culinary expert your project deserves
+          Hire vetted culinary professionals
         </h1>
         <p
           style={{
             fontSize: 15,
             color: '#b99ee8',
-            maxWidth: 480,
+            maxWidth: 560,
             margin: '0 auto 28px',
             lineHeight: 1.7,
           }}
         >
-          Connect with vetted chefs, recipe developers, food stylists, and flavor consultants —
-          credentialed by Spice Krewe&apos;s culinary standard.
+          Access on-demand culinary R&D and vetted professionals for food brands and restaurant
+          groups.
         </p>
         <div style={{ display: 'flex', maxWidth: 560, margin: '0 auto 20px', gap: 10 }}>
           <input
