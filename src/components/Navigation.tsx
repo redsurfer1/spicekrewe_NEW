@@ -1,29 +1,6 @@
-import { useEffect, useState, type CSSProperties } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
-
-const linkStyle: CSSProperties = {
-  color: 'var(--sk-muted-purple)',
-  textDecoration: 'none',
-  fontSize: 14,
-  fontWeight: 500,
-};
-
-const postProjectCta: CSSProperties = {
-  fontSize: 13,
-  minHeight: 44,
-  padding: '10px 16px',
-  display: 'inline-flex',
-  alignItems: 'center',
-  boxSizing: 'border-box',
-  borderRadius: 'var(--sk-radius-sm)',
-  background: 'linear-gradient(180deg, var(--sk-purple-mid) 0%, var(--sk-purple) 100%)',
-  color: '#fff',
-  textDecoration: 'none',
-  fontWeight: 700,
-  border: '2px solid var(--sk-gold)',
-  boxShadow: '0 4px 16px rgba(77, 47, 145, 0.38)',
-};
 
 const navLinks: { to: string; label: string; title?: string }[] = [
   { to: '/talent', label: 'Find talent' },
@@ -31,6 +8,9 @@ const navLinks: { to: string; label: string; title?: string }[] = [
   { to: '/for-teams', label: 'For teams', title: 'Culinary R&D for food brands and restaurant groups' },
   { to: '/about', label: 'About' },
 ];
+
+const linkClass =
+  'text-sm font-medium text-sk-purple-light no-underline hover:opacity-90 transition-opacity';
 
 /**
  * Spice Krewe shell — PEMBU-inspired max-width row + border, with Krewe branding and mobile sheet (Tier 2 merge).
@@ -44,87 +24,49 @@ export default function Navbar() {
   }, [location.pathname, location.search]);
 
   return (
-    <header
-      style={{
-        position: 'sticky',
-        top: 0,
-        zIndex: 100,
-        background: 'rgba(26, 26, 46, 0.92)',
-        backdropFilter: 'blur(10px)',
-        WebkitBackdropFilter: 'blur(10px)',
-        borderBottom: '1px solid rgba(185, 158, 232, 0.18)',
-      }}
-    >
-      <nav
-        className="relative max-w-7xl mx-auto flex items-center justify-between gap-4 px-4 sm:px-6 lg:px-8"
-        style={{ minHeight: 56, paddingTop: 10, paddingBottom: 10 }}
-      >
+    <header className="sticky top-0 z-[100] border-b border-sk-purple-light/20 bg-sk-navy backdrop-blur-md">
+      <nav className="relative mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-2.5 sm:px-6 lg:px-8 min-h-[56px]">
         <Link
           to="/"
-          style={{
-            fontSize: 17,
-            fontWeight: 600,
-            color: '#fff',
-            textDecoration: 'none',
-            letterSpacing: '-0.02em',
-            flexShrink: 0,
-            zIndex: 2,
-          }}
+          className="z-[2] shrink-0 text-[17px] font-semibold tracking-tight text-white no-underline"
         >
-          Spice <span style={{ color: 'var(--sk-muted-purple)' }}>Krewe</span>
+          Spice <span className="text-sk-purple-light">Krewe</span>
         </Link>
 
         {/* Desktop center links */}
-        <div className="hidden lg:flex absolute inset-x-0 top-1/2 -translate-y-1/2 pointer-events-none justify-center">
-          <div className="flex items-center gap-8 pointer-events-auto">
+        <div className="pointer-events-none absolute inset-x-0 top-1/2 hidden -translate-y-1/2 justify-center lg:flex">
+          <div className="pointer-events-auto flex items-center gap-8">
             {navLinks.map(({ to, label, title }) => (
-              <Link key={to} to={to} style={linkStyle} title={title}>
+              <Link key={to} to={to} className={linkClass} title={title}>
                 {label}
               </Link>
             ))}
           </div>
         </div>
 
-        <div className="flex items-center gap-2 sm:gap-3 ml-auto z-10">
+        <div className="z-10 ml-auto flex items-center gap-2 sm:gap-3">
           <Link
             to="/login"
-            className="hidden sm:inline-flex"
-            style={{
-              fontSize: 13,
-              minHeight: 44,
-              padding: '10px 16px',
-              display: 'inline-flex',
-              alignItems: 'center',
-              boxSizing: 'border-box',
-              borderRadius: 'var(--sk-radius-sm)',
-              border: '0.5px solid rgba(179, 153, 232, 0.4)',
-              color: '#d9ccf4',
-              textDecoration: 'none',
-              background: 'transparent',
-            }}
+            className="hidden min-h-[44px] items-center rounded-sk-sm border border-sk-purple-light/40 px-4 py-2.5 text-[13px] text-sk-purple-light no-underline sm:inline-flex"
           >
             Log in
           </Link>
-          <Link to="/hire" style={postProjectCta}>
+          <Link
+            to="/hire"
+            className="inline-flex min-h-[44px] items-center rounded-sk-sm bg-sk-purple px-4 py-2.5 text-[13px] font-bold text-white no-underline shadow-md shadow-sk-purple/40"
+          >
             Post a project
           </Link>
 
           <button
             type="button"
-            className="lg:hidden flex items-center justify-center rounded-md"
-            style={{
-              minWidth: 44,
-              minHeight: 44,
-              border: '1px solid rgba(185, 158, 232, 0.35)',
-              background: 'rgba(77, 47, 145, 0.35)',
-              color: '#fff',
-            }}
+            className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-md border border-sk-purple-light/35 bg-sk-purple/35 text-white lg:hidden"
             aria-expanded={mobileOpen}
             aria-controls="sk-mobile-nav"
             aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
             onClick={() => setMobileOpen((o) => !o)}
           >
-            {mobileOpen ? <X size={22} /> : <Menu size={22} />}
+            {mobileOpen ? <X size={22} className="text-white" strokeWidth={2} /> : <Menu size={22} className="text-white" strokeWidth={2} />}
           </button>
         </div>
       </nav>
@@ -132,25 +74,15 @@ export default function Navbar() {
       {mobileOpen ? (
         <div
           id="sk-mobile-nav"
-          className="lg:hidden border-t"
-          style={{
-            borderColor: 'rgba(185, 158, 232, 0.15)',
-            background: 'var(--sk-navy)',
-            padding: '12px 16px 20px',
-          }}
+          className="border-t border-sk-purple-light/15 bg-sk-navy px-4 pb-5 pt-3 lg:hidden"
         >
-          <div className="flex flex-col gap-1 max-w-7xl mx-auto">
+          <div className="mx-auto flex max-w-7xl flex-col gap-1">
             {navLinks.map(({ to, label, title }) => (
               <Link
                 key={to}
                 to={to}
                 onClick={() => setMobileOpen(false)}
-                style={{
-                  ...linkStyle,
-                  padding: '14px 12px',
-                  borderRadius: 'var(--sk-radius-md)',
-                  color: '#fff',
-                }}
+                className={`rounded-sk-md px-3 py-3.5 ${linkClass}`}
                 title={title}
               >
                 {label}
@@ -159,28 +91,14 @@ export default function Navbar() {
             <Link
               to="/login"
               onClick={() => setMobileOpen(false)}
-              style={{
-                marginTop: 8,
-                padding: '14px 12px',
-                fontSize: 14,
-                fontWeight: 600,
-                color: 'var(--sk-muted-purple)',
-                textDecoration: 'none',
-                borderRadius: 'var(--sk-radius-md)',
-                border: '1px solid rgba(179, 153, 232, 0.35)',
-              }}
+              className="mt-2 rounded-sk-md border border-sk-purple-light/35 px-3 py-3.5 text-sm font-semibold text-sk-purple-light no-underline"
             >
               Log in
             </Link>
             <Link
               to="/hire"
               onClick={() => setMobileOpen(false)}
-              style={{
-                ...postProjectCta,
-                marginTop: 12,
-                width: '100%',
-                justifyContent: 'center',
-              }}
+              className="mt-3 flex min-h-[44px] w-full items-center justify-center rounded-sk-sm bg-sk-purple px-4 py-2.5 text-[13px] font-bold text-white no-underline shadow-md shadow-sk-purple/40"
             >
               Post a project
             </Link>

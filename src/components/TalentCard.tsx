@@ -1,129 +1,110 @@
-import { useState } from 'react';
+import { useState, type CSSProperties } from 'react';
 import { Link } from 'react-router-dom';
+import { Check, Star } from 'lucide-react';
 import type { TalentRecord } from '../types/talentRecord';
 
-type Props = { professional: TalentRecord };
+type Props = {
+  professional: TalentRecord;
+  /**
+   * When true, profile URL includes `?talentId=<id>` so Hire Flow and analytics can read the same param as `/hire?talentId=`.
+   */
+  appendTalentIdQuery?: boolean;
+  /** Optional extra class on the root link (e.g. grid entrance animation). */
+  className?: string;
+  /** Optional inline styles (e.g. animation-delay for staggered grid entrance). */
+  style?: CSSProperties;
+};
 
-export default function TalentCard({ professional: p }: Props) {
+export default function TalentCard({ professional: p, appendTalentIdQuery = false, className = '', style }: Props) {
   const [hovered, setHovered] = useState(false);
+
+  const profileTo =
+    appendTalentIdQuery
+      ? `/talent/${encodeURIComponent(p.id)}?talentId=${encodeURIComponent(p.id)}`
+      : `/talent/${encodeURIComponent(p.id)}`;
+
+  const firstName = p.name.trim().split(/\s+/)[0] || p.name;
+  const hasReviews = p.reviews > 0;
 
   return (
     <Link
-      to={`/talent/${p.id}`}
-      style={{ textDecoration: 'none', color: 'inherit', display: 'block', height: '100%' }}
+      to={profileTo}
+      className={`group block h-full no-underline text-inherit ${className}`.trim()}
+      style={style}
+      aria-label={`${p.name} — ${p.role}. Open profile to hire or learn more.`}
     >
       <article
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
+        className="flex h-full min-h-full flex-col rounded-sk-lg border bg-white p-5 transition-[border-color,box-shadow] duration-200 ease-out"
         style={{
-          height: '100%',
-          display: 'flex',
-          flexDirection: 'column',
-          border: `1px solid ${hovered ? 'var(--sk-purple)' : 'var(--sk-card-border)'}`,
-          borderRadius: 'var(--sk-radius-lg)',
-          background: '#fff',
-          padding: 20,
+          borderColor: hovered ? 'var(--sk-purple)' : 'var(--sk-card-border)',
           boxShadow: hovered ? '0 8px 24px rgba(77, 47, 145, 0.08)' : '0 2px 8px rgba(26, 26, 46, 0.06)',
-          transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 14 }}>
+        <div className="mb-3.5 flex items-start justify-between">
           <div
-            style={{
-              width: 52,
-              height: 52,
-              borderRadius: 'var(--sk-radius-md)',
-              background: p.avatarColor,
-              color: '#fff',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: 17,
-              fontWeight: 700,
-              letterSpacing: '-0.02em',
-              flexShrink: 0,
-            }}
+            className="flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-sk-md text-[17px] font-bold tracking-tight text-white"
+            style={{ background: p.avatarColor }}
             aria-hidden
           >
             {p.avatarText}
           </div>
-          {p.verified ? (
-            <span
-              style={{
-                fontSize: 10,
-                fontWeight: 700,
-                letterSpacing: '0.06em',
-                color: 'var(--sk-gold)',
-                background: 'rgba(230, 168, 0, 0.14)',
-                border: '1px solid rgba(230, 168, 0, 0.35)',
-                padding: '4px 8px',
-                borderRadius: 'var(--sk-radius-pill)',
-                whiteSpace: 'nowrap',
-              }}
-            >
-              SK Verified
-            </span>
-          ) : null}
         </div>
 
-        <header style={{ marginBottom: 8 }}>
-          <h3
-            style={{
-              fontSize: 17,
-              fontWeight: 600,
-              color: 'var(--sk-navy)',
-              margin: '0 0 4px 0',
-              lineHeight: 1.25,
-            }}
-          >
-            {p.name}
-          </h3>
-          <p style={{ margin: 0, fontSize: 13, color: 'var(--sk-purple)', fontWeight: 500 }}>{p.role}</p>
+        <header className="mb-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <h3 className="m-0 text-[17px] font-semibold leading-tight text-sk-navy">{p.name}</h3>
+            {p.verified ? (
+              <span
+                className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-sk-gold"
+                title="SK Verified"
+                aria-label="SK Verified"
+              >
+                <Check className="h-3 w-3 text-white" strokeWidth={3} aria-hidden />
+              </span>
+            ) : null}
+          </div>
+          <p className="m-0 text-[13px] font-medium text-sk-purple">{p.role}</p>
         </header>
 
-        <p
-          style={{
-            margin: '0 0 12px 0',
-            fontSize: 13,
-            color: '#5c5470',
-            lineHeight: 1.5,
-            flex: 1,
-          }}
-        >
-          {p.specialty}
-        </p>
+        <p className="mb-3 flex-1 text-[13px] leading-normal text-sk-text-muted">{p.specialty}</p>
 
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8, marginBottom: 10 }}>
-          <span style={{ fontSize: 15, fontWeight: 700, color: 'var(--sk-navy)' }}>{p.rate}</span>
-          <span style={{ fontSize: 13, color: '#6b5a88' }}>
-            <span style={{ color: 'var(--sk-gold)' }} aria-hidden>
-              ★
-            </span>{' '}
-            {p.rating.toFixed(1)} <span style={{ color: '#a8a0b8' }}>({p.reviews})</span>
+        <div className="mb-2.5 flex flex-wrap items-center justify-between gap-2">
+          <span className="text-[15px] font-bold text-sk-navy">{p.rate}</span>
+          <span className="flex items-center gap-1 text-[13px] text-sk-text-subtle">
+            <Star className="h-3.5 w-3.5 shrink-0 fill-sk-gold text-sk-gold" aria-hidden />
+            {hasReviews ? (
+              <>
+                <span className="text-sk-navy">{p.rating.toFixed(1)}</span>
+                <span className="text-sk-text-soft">({p.reviews})</span>
+              </>
+            ) : (
+              <span className="text-sk-purple-light">New to the Krewe</span>
+            )}
           </span>
         </div>
 
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 10 }}>
+        <div className="mb-2.5 flex flex-wrap gap-1.5">
           {p.tags.slice(0, 3).map((tag) => (
             <span
               key={tag}
-              style={{
-                fontSize: 11,
-                padding: '3px 10px',
-                borderRadius: 'var(--sk-radius-pill)',
-                border: '1px solid rgba(77, 47, 145, 0.2)',
-                color: 'var(--sk-purple)',
-                background: 'var(--sk-purple-light)',
-              }}
+              className="rounded-sk-pill border border-sk-purple/20 bg-sk-purple-light/25 px-2.5 py-0.5 text-[11px] text-sk-purple"
             >
               {tag}
             </span>
           ))}
         </div>
 
-        <p style={{ margin: 0, fontSize: 11, color: p.available ? '#2d6a4f' : '#9a6b2e', fontWeight: 600 }}>
+        <p className={`m-0 mb-4 text-[11px] font-semibold ${p.available ? 'text-sk-purple' : 'text-sk-gold'}`}>
           {p.available ? 'Available for projects' : 'Currently booked'}
         </p>
+
+        <div className="mt-auto border-t border-sk-card-border pt-4">
+          <span className="flex w-full min-h-[44px] items-center justify-center rounded-sk-md bg-sk-purple px-4 py-2.5 text-center text-sm font-semibold text-white transition-colors duration-200 ease-out group-hover:bg-sk-navy">
+            Hire {firstName}
+          </span>
+        </div>
       </article>
     </Link>
   );

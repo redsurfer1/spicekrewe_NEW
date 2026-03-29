@@ -12,75 +12,20 @@ export default function B2BBanner({ talkEmail = DEFAULT_ENTERPRISE_EMAIL }: Prop
   const mailto = `mailto:${encodeURIComponent(talkEmail)}?subject=${encodeURIComponent('Spice Krewe — Teams / retainer inquiry')}`;
 
   return (
-    <section
-      style={{
-        background: 'var(--sk-purple)',
-        padding: '48px 24px',
-      }}
-    >
-      <div
-        style={{
-          maxWidth: 960,
-          margin: '0 auto',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'flex-start',
-          gap: 16,
-        }}
-      >
-        <p
-          style={{
-            margin: 0,
-            fontSize: 11,
-            fontWeight: 700,
-            letterSpacing: '0.12em',
-            textTransform: 'uppercase',
-            color: 'var(--sk-fg-on-dark-muted)',
-          }}
-        >
+    <section className="bg-sk-purple px-6 py-12">
+      <div className="mx-auto flex max-w-[960px] flex-col items-start gap-4">
+        <div className="text-[11px] font-medium uppercase tracking-[0.12em] text-sk-purple-light">
           For food brands + restaurants
-        </p>
-        <h2
-          style={{
-            margin: 0,
-            fontSize: 'clamp(1.5rem, 4vw, 2rem)',
-            fontWeight: 700,
-            lineHeight: 1.2,
-            color: '#fff',
-            letterSpacing: '-0.02em',
-            maxWidth: 640,
-          }}
-        >
+        </div>
+        <h2 className="m-0 max-w-[640px] text-[18px] font-medium leading-snug tracking-tight text-white">
           On-demand culinary R&amp;D — without the headcount
         </h2>
-        <p
-          style={{
-            margin: 0,
-            fontSize: 16,
-            lineHeight: 1.6,
-            color: 'var(--sk-fg-on-dark)',
-            maxWidth: 560,
-          }}
-        >
+        <p className="m-0 max-w-[560px] text-base leading-relaxed text-sk-fg-on-dark">
           Retainer access to Spice Krewe&apos;s full professional network. Starting at $1,000/mo.
         </p>
         <a
           href={mailto}
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 8,
-            marginTop: 8,
-            padding: '12px 22px',
-            fontSize: 14,
-            fontWeight: 700,
-            borderRadius: 'var(--sk-radius-md)',
-            background: 'var(--sk-gold)',
-            color: 'var(--sk-navy)',
-            textDecoration: 'none',
-            border: 'none',
-            cursor: 'pointer',
-          }}
+          className="mt-2 inline-flex items-center gap-2 rounded-sk-md bg-sk-gold px-[22px] py-3 text-sm font-bold text-sk-navy no-underline"
         >
           Talk to us
           <span aria-hidden>→</span>

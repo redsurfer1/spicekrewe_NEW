@@ -1,6 +1,6 @@
 import type { CSSProperties } from 'react';
 import { Link } from 'react-router-dom';
-import { Facebook, Instagram, Twitter, Youtube, Heart } from 'lucide-react';
+import { Facebook, Instagram, Twitter, Youtube } from 'lucide-react';
 
 const linkMuted: CSSProperties = {
   color: 'rgba(255,255,255,0.72)',
@@ -9,9 +9,9 @@ const linkMuted: CSSProperties = {
 };
 const linkHoverClass = 'hover:opacity-100 transition-opacity';
 
-export default function Footer() {
-  const currentYear = new Date().getFullYear();
+const headingClass = 'mb-4 text-sm font-bold tracking-normal text-[#6b5a88]';
 
+export default function Footer() {
   return (
     <footer
       className="py-12"
@@ -29,8 +29,7 @@ export default function Footer() {
               <span style={{ color: 'var(--sk-muted-purple)' }}>Krewe</span>
             </div>
             <p className="mb-6 max-w-md" style={{ color: 'rgba(255,255,255,0.7)', lineHeight: 1.65, fontSize: 15 }}>
-              Culinary IP and intelligence on demand: vetted professionals, secure collaboration, and a single path from
-              brief to delivery.
+              Community · Culture · Culinary talent
             </p>
             <div className="flex gap-3">
               <a
@@ -69,9 +68,7 @@ export default function Footer() {
           </div>
 
           <div>
-            <h3 className="font-bold text-sm uppercase tracking-wider mb-4" style={{ color: 'var(--sk-gold)' }}>
-              Marketplace
-            </h3>
+            <h3 className={headingClass}>Marketplace</h3>
             <ul className="space-y-3">
               <li>
                 <Link to="/talent" className={`opacity-90 ${linkHoverClass}`} style={linkMuted}>
@@ -97,9 +94,7 @@ export default function Footer() {
           </div>
 
           <div>
-            <h3 className="font-bold text-sm uppercase tracking-wider mb-4" style={{ color: 'var(--sk-gold)' }}>
-              Company
-            </h3>
+            <h3 className={headingClass}>Company</h3>
             <ul className="space-y-3">
               <li>
                 <Link to="/" className={`opacity-90 ${linkHoverClass}`} style={linkMuted}>
@@ -117,9 +112,7 @@ export default function Footer() {
                 </Link>
               </li>
             </ul>
-            <h3 className="font-bold text-sm uppercase tracking-wider mt-8 mb-4" style={{ color: 'var(--sk-gold)' }}>
-              Contact
-            </h3>
+            <h3 className={`${headingClass} mt-8`}>Contact</h3>
             <ul className="space-y-2" style={{ color: 'rgba(255,255,255,0.7)', fontSize: 14 }}>
               <li>123 Community Street</li>
               <li>Memphis, TN 38107</li>
@@ -137,8 +130,8 @@ export default function Footer() {
           className="pt-8 flex flex-col sm:flex-row justify-between items-center gap-4"
           style={{ borderTop: '1px solid rgba(255,255,255,0.1)' }}
         >
-          <p className="text-sm flex items-center gap-2" style={{ color: 'rgba(255,255,255,0.55)' }}>
-            {currentYear} Spice Krewe. Made with <Heart size={16} style={{ color: 'var(--sk-muted-purple)' }} /> for our community.
+          <p className="text-sm" style={{ color: 'rgba(255,255,255,0.55)' }}>
+            2025 Spice Krewe
           </p>
           <div className="flex gap-6 text-sm" style={{ color: 'rgba(255,255,255,0.55)' }}>
             <a href="#" className="hover:text-white transition-colors">
