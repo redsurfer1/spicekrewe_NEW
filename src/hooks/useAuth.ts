@@ -41,13 +41,14 @@ export function useAuth(): UseAuthReturn {
       return;
     }
 
+    const client = supabase;
     let mounted = true;
 
     async function getSession() {
       try {
         const {
           data: { session },
-        } = await supabase.auth.getSession();
+        } = await client.auth.getSession();
 
         if (!mounted) return;
 
@@ -69,7 +70,7 @@ export function useAuth(): UseAuthReturn {
 
     async function fetchProfile(userId: string) {
       try {
-        const { data, error } = await supabase.from('profiles').select('*').eq('id', userId).maybeSingle();
+        const { data, error } = await client.from('profiles').select('*').eq('id', userId).maybeSingle();
 
         if (error) {
           console.error('Error fetching profile:', error);
@@ -88,7 +89,7 @@ export function useAuth(): UseAuthReturn {
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = client.auth.onAuthStateChange((_event, session) => {
       if (!mounted) return;
 
       void (async () => {
