@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState, type CSSProperties } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Search } from 'lucide-react';
 import Navbar from '../components/Navigation';
 import Footer from '../components/Footer';
@@ -6,7 +7,13 @@ import B2BBanner from '../components/B2BBanner';
 import SEO from '../components/SEO';
 import TalentCard from '../components/TalentCard';
 import type { TalentRecord } from '../types/talentRecord';
-import { CULINARY_CATEGORIES, fetchTalentDirectory } from '../data/talent';
+import {
+  CULINARY_CATEGORIES,
+  fetchTalentDirectory,
+  MEMPHIS_AREA_TALENT_IDS,
+  NASHVILLE_AREA_TALENT_IDS,
+  NEW_ORLEANS_AREA_TALENT_IDS,
+} from '../data/talent';
 
 const SEARCH_DEBOUNCE_MS = 300;
 
@@ -117,6 +124,13 @@ function EmptyTalentState({ onClearAll }: { onClearAll: () => void }) {
 }
 
 export default function FindTalent() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const verifiedOnly = searchParams.get('verified') === 'true';
+  const locationFilter = searchParams.get('location');
+  const memphisOnly = locationFilter === 'Memphis';
+  const nashvilleOnly = locationFilter === 'Nashville';
+  const newOrleansOnly = locationFilter === 'New Orleans';
+
   const [roster, setRoster] = useState<TalentRecord[]>([]);
   const [directoryLoading, setDirectoryLoading] = useState(true);
   const [searchInput, setSearchInput] = useState('');
@@ -153,23 +167,43 @@ export default function FindTalent() {
     setSelectedCategories([]);
     setSearchInput('');
     setDebouncedSearch('');
-  }, []);
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      next.delete('verified');
+      next.delete('location');
+      return next;
+    });
+  }, [setSearchParams]);
 
   const hasActiveFilters = useMemo(
-    () => selectedCategories.length > 0 || debouncedSearch.trim().length > 0,
-    [selectedCategories, debouncedSearch],
+    () =>
+      selectedCategories.length > 0 ||
+      debouncedSearch.trim().length > 0 ||
+      verifiedOnly ||
+      memphisOnly ||
+      nashvilleOnly ||
+      newOrleansOnly,
+    [selectedCategories, debouncedSearch, verifiedOnly, memphisOnly, nashvilleOnly, newOrleansOnly],
   );
 
   const activeFilterCount = useMemo(
-    () => selectedCategories.length + (debouncedSearch.trim() ? 1 : 0),
-    [selectedCategories, debouncedSearch],
+    () =>
+      selectedCategories.length +
+      (debouncedSearch.trim() ? 1 : 0) +
+      (verifiedOnly ? 1 : 0) +
+      (memphisOnly || nashvilleOnly || newOrleansOnly ? 1 : 0),
+    [selectedCategories, debouncedSearch, verifiedOnly, memphisOnly, nashvilleOnly, newOrleansOnly],
   );
 
   const filtered = useMemo(() => {
-    return roster.filter(
-      (row) => matchesCategoryFilters(selectedCategories, row) && matchesSearch(debouncedSearch, row),
-    );
-  }, [roster, debouncedSearch, selectedCategories]);
+    return roster.filter((row) => {
+      if (verifiedOnly && !row.verified) return false;
+      if (memphisOnly && !MEMPHIS_AREA_TALENT_IDS.includes(row.id)) return false;
+      if (nashvilleOnly && !NASHVILLE_AREA_TALENT_IDS.includes(row.id)) return false;
+      if (newOrleansOnly && !NEW_ORLEANS_AREA_TALENT_IDS.includes(row.id)) return false;
+      return matchesCategoryFilters(selectedCategories, row) && matchesSearch(debouncedSearch, row);
+    });
+  }, [roster, debouncedSearch, selectedCategories, verifiedOnly, memphisOnly, nashvilleOnly, newOrleansOnly]);
 
   const searchPending = searchInput !== debouncedSearch;
 
@@ -225,6 +259,26 @@ export default function FindTalent() {
             <p className="m-0 mb-5 max-w-[560px] text-[15px] leading-snug text-sk-text-subtle">
               Search vetted chefs, developers, stylists, and consultants. Use categories to narrow the directory.
             </p>
+            {verifiedOnly ? (
+              <p className="m-0 mb-3 rounded-sk-md border border-sk-gold/40 bg-[#fef8e7] px-3 py-2 text-[13px] font-medium text-[#8a6200]">
+                Showing SK Verified professionals only.
+              </p>
+            ) : null}
+            {memphisOnly ? (
+              <p className="m-0 mb-3 rounded-sk-md border border-sk-card-border bg-sk-purple-light/10 px-3 py-2 text-[13px] font-medium text-sk-navy">
+                Showing Memphis-area talent from the directory roster.
+              </p>
+            ) : null}
+            {nashvilleOnly ? (
+              <p className="m-0 mb-3 rounded-sk-md border border-sk-card-border bg-sk-purple-light/10 px-3 py-2 text-[13px] font-medium text-sk-navy">
+                Showing Nashville-area talent from the directory roster.
+              </p>
+            ) : null}
+            {newOrleansOnly ? (
+              <p className="m-0 mb-3 rounded-sk-md border border-sk-card-border bg-sk-purple-light/10 px-3 py-2 text-[13px] font-medium text-sk-navy">
+                Showing New Orleans-area talent from the directory roster.
+              </p>
+            ) : null}
 
             <div className="relative w-full max-w-full sm:max-w-[480px]">
               <label htmlFor="talent-directory-search" className="sr-only">

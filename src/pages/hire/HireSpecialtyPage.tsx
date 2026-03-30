@@ -4,7 +4,7 @@ import Footer from '../../components/Footer';
 import SEO from '../../components/SEO';
 import BriefExplainer from '../../components/BriefExplainer';
 
-const ALLOWED = ['recipe-developer', 'food-stylist', 'culinary-consultant'] as const;
+const ALLOWED = ['recipe-developer'] as const;
 type SpecialtySlug = (typeof ALLOWED)[number];
 
 const CONFIG: Record<
@@ -35,38 +35,6 @@ const CONFIG: Record<
     ],
     ctaHref: '/hire',
     ctaLabel: 'Brief a recipe developer',
-  },
-  'food-stylist': {
-    seoTitle: 'Hire Food Stylist for Editorial & E‑commerce | Spice Krewe',
-    description:
-      'Food stylists for editorial, e-commerce hero assets, and social campaigns—SK Verified professionals ready for set-day throughput.',
-    kicker: 'Editorial · e-com · social',
-    headline: 'Campaign-ready food styling',
-    sub:
-      'Editorial rigor, e-commerce consistency, and social-first motion—one stylist thread that keeps brand, legal, and production on the same page.',
-    bullets: [
-      'Editorial and catalog shoots with prop fluency and shot-list discipline',
-      'E-commerce hero frames optimized for PDP conversion and retouch handoff',
-      'Social and paid-media variants planned for safe, edible sets and fast iteration',
-    ],
-    ctaHref: '/hire',
-    ctaLabel: 'Brief a food stylist',
-  },
-  'culinary-consultant': {
-    seoTitle: 'On-Demand Culinary R&D Without Headcount | Spice Krewe',
-    description:
-      'Culinary consultants and R&D leads on retainer-style engagements—on-demand expertise without adding permanent headcount.',
-    kicker: 'R&D · operations · strategy',
-    headline: 'On-demand R&D without the headcount',
-    sub:
-      'Access executive-level culinary strategy, menu systems, and innovation sprints through Spice Krewe’s COS layer—brief once, execute across workstreams with SK Verified governance.',
-    bullets: [
-      'Stage-gated milestones that map to finance and ops checkpoints',
-      'Cross-functional handoffs between culinary, procurement, and creative',
-      'Transparent commercial threads and consolidated billing options for teams',
-    ],
-    ctaHref: '/hire',
-    ctaLabel: 'Brief a consultant',
   },
 };
 

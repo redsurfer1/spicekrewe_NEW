@@ -1,9 +1,11 @@
-const API_BASE_URL = 'http://127.0.0.1:8000/api';
+const origin = import.meta.env.VITE_APP_ORIGIN?.replace(/\/$/, '') ?? '';
+const API_BASE_URL = origin ? `${origin}/api` : '/api';
 
 interface ContactFormData {
   name: string;
   email: string;
   message: string;
+  lead_source?: string;
 }
 
 interface NewsletterData {

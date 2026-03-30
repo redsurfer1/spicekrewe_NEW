@@ -2,6 +2,7 @@ import type { TechnicalRequirementsDocument } from './ai/autoScoper';
 import { PROFESSIONAL_ROSTER, type ServerTalentRecord } from '../data/talentRoster';
 import { patchBriefRecord } from './supabase-brief';
 import { appendMatchmakerLog, type MatchmakerLogEntry } from './matchmakerLogStore';
+import { persistMatchmakerLogToDb } from './matchmakerLogDb';
 
 export type { MatchmakerLogEntry };
 
@@ -161,11 +162,17 @@ export async function runPredictiveMatchmakerAfterFeaturedPayment(
   }
   if (!needles.length) {
     const message = `MATCH PENDING: ${projectName} — add Required Skills or TechnicalRequirements (TRD) for predictive matching.`;
-    appendMatchmakerLog({
+    const pendingEntry = appendMatchmakerLog({
       briefId,
       projectName,
       message,
       topMatches: [],
+    });
+    void persistMatchmakerLogToDb({
+      briefId: pendingEntry.briefId,
+      projectName: pendingEntry.projectName,
+      message: pendingEntry.message,
+      topMatches: pendingEntry.topMatches,
     });
     // eslint-disable-next-line no-console
     console.log(
@@ -194,6 +201,13 @@ export async function runPredictiveMatchmakerAfterFeaturedPayment(
     topMatches: scored.slice(0, 3).map((s) => ({ id: s.id, name: s.name, score: s.score })),
   });
 
+  void persistMatchmakerLogToDb({
+    briefId: entry.briefId,
+    projectName: entry.projectName,
+    message: entry.message,
+    topMatches: entry.topMatches,
+  });
+
   // eslint-disable-next-line no-console
   console.log(
     JSON.stringify({
@@ -208,6 +222,7 @@ export async function runPredictiveMatchmakerAfterFeaturedPayment(
 
   const patched = await patchBriefRecord(briefId, {
     predictive_match_summary: message,
+    WorkflowStatus: 'matched',
   });
   if (!patched.success) {
     // eslint-disable-next-line no-console

@@ -60,6 +60,8 @@ export function rowToBriefFields(row: Record<string, unknown>): BriefFieldsMap {
     project_title: row.project_title,
     ClientName: row.client_name,
     client_name: row.client_name,
+    ClientEmail: row.client_email,
+    client_email: row.client_email,
     Description: row.description,
     description: row.description,
     RequiredSkills: row.required_skills,
@@ -76,6 +78,16 @@ export function rowToBriefFields(row: Record<string, unknown>): BriefFieldsMap {
     predictive_match_summary: row.predictive_match_summary,
     StripeLastWebhookEventId: row.stripe_last_webhook_event_id,
     stripe_checkout_session_id: row.stripe_checkout_session_id,
+    TrdStatus: row.trd_status,
+    trd_status: row.trd_status,
+    WorkflowStatus: row.workflow_status,
+    workflow_status: row.workflow_status,
+    PaidAt: row.paid_at,
+    paid_at: row.paid_at,
+    OnboardingEmail1SentAt: row.onboarding_email_1_sent_at,
+    onboarding_email_1_sent_at: row.onboarding_email_1_sent_at,
+    OnboardingEmail2SentAt: row.onboarding_email_2_sent_at,
+    onboarding_email_2_sent_at: row.onboarding_email_2_sent_at,
   };
 }
 
@@ -135,6 +147,10 @@ function mapPatchToRow(patch: Record<string, string | number | boolean>): Record
       case 'ClientName':
       case 'client_name':
         set('client_name', String(val));
+        break;
+      case 'ClientEmail':
+      case 'client_email':
+        set('client_email', String(val));
         break;
       case 'ProjectTitle':
       case 'project_title':
@@ -200,6 +216,26 @@ function mapPatchToRow(patch: Record<string, string | number | boolean>): Record
       case 'predictive_match_summary':
         set('predictive_match_summary', String(val));
         break;
+      case 'TrdStatus':
+      case 'trd_status':
+        set('trd_status', String(val));
+        break;
+      case 'WorkflowStatus':
+      case 'workflow_status':
+        set('workflow_status', String(val));
+        break;
+      case 'PaidAt':
+      case 'paid_at':
+        set('paid_at', String(val));
+        break;
+      case 'OnboardingEmail1SentAt':
+      case 'onboarding_email_1_sent_at':
+        set('onboarding_email_1_sent_at', String(val));
+        break;
+      case 'OnboardingEmail2SentAt':
+      case 'onboarding_email_2_sent_at':
+        set('onboarding_email_2_sent_at', String(val));
+        break;
       default:
         break;
     }
@@ -242,8 +278,13 @@ export async function createBriefRecord(
 ): Promise<Result<{ recordId: string }, Error>> {
   const sb = getSupabaseServiceRole();
 
+  const rawEmail = fields.ClientEmail ?? fields.client_email;
+  const normalizedEmail =
+    typeof rawEmail === 'string' && rawEmail.trim().includes('@') ? rawEmail.trim().toLowerCase() : null;
+
   const row: Record<string, unknown> = {
     client_name: String(fields.ClientName ?? fields.client_name ?? ''),
+    ...(normalizedEmail ? { client_email: normalizedEmail } : {}),
     project_title: String(fields.ProjectTitle ?? fields.project_title ?? ''),
     budget_range: String(fields.BudgetRange ?? fields.budget_range ?? ''),
     timeline: String(fields.Timeline ?? fields.timeline ?? ''),

@@ -1,6 +1,7 @@
 /**
  * Generates the official social sharing image (og-image.png) at 1200x630.
  * Run from project root: node scripts/generate-og-image.js
+ * Prebuild must never fail the main build — errors fall back to og-image-fallback.png when present.
  */
 
 import { createCanvas, loadImage } from 'canvas';
@@ -25,23 +26,36 @@ function readCssHexVar(cssPath, varName) {
 }
 
 const INDEX_CSS = path.join(ROOT, 'src/index.css');
-const SPICE_PURPLE = readCssHexVar(INDEX_CSS, '--sk-purple');
-const SPICE_BLUE = readCssHexVar(INDEX_CSS, '--sk-blue');
 const LOGO_PATH = path.join(ROOT, 'public/assets/images/brand/SpiceKrewe_Logo_Transparent_background.png');
 const OUTPUT_PATH = path.join(ROOT, 'public/og-image.png');
+const FALLBACK_PATH = path.join(ROOT, 'public/og-image-fallback.png');
+
+function copyFallbackIfPresent() {
+  try {
+    if (fs.existsSync(FALLBACK_PATH)) {
+      fs.copyFileSync(FALLBACK_PATH, OUTPUT_PATH);
+      console.warn('[generate-og-image] Using fallback copy:', FALLBACK_PATH, '→', OUTPUT_PATH);
+    } else {
+      console.warn('[generate-og-image] No og-image-fallback.png found; skipping copy.');
+    }
+  } catch (e) {
+    console.warn('[generate-og-image] Fallback copy failed:', e instanceof Error ? e.message : e);
+  }
+}
 
 async function main() {
+  const SPICE_PURPLE = readCssHexVar(INDEX_CSS, '--sk-purple');
+  const SPICE_BLUE = readCssHexVar(INDEX_CSS, '--sk-blue');
+
   const canvas = createCanvas(WIDTH, HEIGHT);
   const ctx = canvas.getContext('2d');
 
-  // Background gradient (left to right: Spice Purple → Spice Blue)
   const gradient = ctx.createLinearGradient(0, 0, WIDTH, HEIGHT);
   gradient.addColorStop(0, SPICE_PURPLE);
   gradient.addColorStop(1, SPICE_BLUE);
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, WIDTH, HEIGHT);
 
-  // Load and draw logo centered with padding
   const logo = await loadImage(LOGO_PATH);
   const maxLogoWidth = WIDTH - PADDING * 2;
   const maxLogoHeight = HEIGHT - PADDING * 2;
@@ -53,13 +67,15 @@ async function main() {
 
   ctx.drawImage(logo, x, y, logoWidth, logoHeight);
 
-  // Export to PNG
   const buffer = canvas.toBuffer('image/png');
   fs.writeFileSync(OUTPUT_PATH, buffer);
   console.log('Created:', OUTPUT_PATH);
 }
 
-main().catch((err) => {
-  console.error('Error generating og-image:', err.message);
-  process.exit(1);
-});
+try {
+  await main();
+} catch (err) {
+  console.warn('[generate-og-image] Generation failed (non-fatal for build):', err instanceof Error ? err.message : err);
+  copyFallbackIfPresent();
+}
+process.exit(0);

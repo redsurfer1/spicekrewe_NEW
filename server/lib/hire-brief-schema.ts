@@ -3,6 +3,7 @@ import { z } from 'zod';
 /** Server-side mirror of `src/lib/validation.ts` HireBriefSchema — keep in sync. */
 export const HireBriefSchema = z.object({
   clientName: z.string().min(1, 'Client name is required').max(200),
+  clientEmail: z.string().min(1, 'Email is required').email('Enter a valid email address').max(320),
   projectTitle: z.string().min(1, 'Project title is required').max(300),
   budgetRange: z.string().min(1, 'Budget range is required').max(120),
   timeline: z.string().min(1, 'Timeline is required').max(200),

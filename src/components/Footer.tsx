@@ -112,7 +112,7 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link to="/locations/memphis" className={`opacity-90 ${linkHoverClass}`} style={linkMuted}>
+                <Link to="/hire/memphis" className={`opacity-90 ${linkHoverClass}`} style={linkMuted}>
                   Memphis
                 </Link>
               </li>
@@ -122,6 +122,11 @@ export default function Footer() {
           <div>
             <h3 className={headingClass}>Company</h3>
             <ul className="space-y-3">
+              <li>
+                <Link to="/blog" className={`opacity-90 ${linkHoverClass}`} style={linkMuted}>
+                  Blog
+                </Link>
+              </li>
               <li>
                 <Link to="/" className={`opacity-90 ${linkHoverClass}`} style={linkMuted}>
                   Home
@@ -157,9 +162,9 @@ export default function Footer() {
             <Link to="/privacy" className="hover:text-white transition-colors">
               Privacy Policy
             </Link>
-            <a href="#" className="hover:text-white transition-colors">
+            <Link to="/terms" className="hover:text-white transition-colors">
               Terms of Service
-            </a>
+            </Link>
           </div>
         </div>
       </div>

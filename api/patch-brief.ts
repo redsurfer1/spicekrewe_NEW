@@ -2,6 +2,8 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { z } from 'zod';
 import { patchBriefRecord } from '../server/lib/supabase-brief';
 import { createRequestId } from '../server/lib/request-id';
+import { closeBookingForBrief, ensureBookingForBrief } from '../server/lib/bookings';
+import { sendReviewRequestEmail } from '../server/email/onboarding-sequence';
 
 const BodySchema = z.object({
   recordId: z.string().min(3).max(64),
@@ -10,6 +12,9 @@ const BodySchema = z.object({
       PostingTier: z.enum(['Standard', 'Featured']).optional(),
       PrimaryInterestTalentIds: z.string().max(2000).optional(),
       SourceTalentId: z.string().max(120).optional(),
+      WorkflowStatus: z
+        .enum(['unpaid', 'active', 'matching', 'matched', 'cancelled', 'closed', 'sla_breached'])
+        .optional(),
     })
     .strict(),
 });
@@ -61,6 +66,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
   if (fields.PostingTier !== undefined) flat.PostingTier = fields.PostingTier;
   if (fields.PrimaryInterestTalentIds !== undefined) flat.PrimaryInterestTalentIds = fields.PrimaryInterestTalentIds;
   if (fields.SourceTalentId !== undefined) flat.SourceTalentId = fields.SourceTalentId;
+  if (fields.WorkflowStatus !== undefined) flat.WorkflowStatus = fields.WorkflowStatus;
 
   if (Object.keys(flat).length === 0) {
     res.status(400).json({ error: 'No allowed fields to patch', requestId });
@@ -82,6 +88,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
     );
     res.status(502).json({ error: patched.error.message, requestId });
     return;
+  }
+
+  if (fields.WorkflowStatus === 'closed') {
+    const closed = await closeBookingForBrief(recordId);
+    if (closed.success) {
+      const booking = await ensureBookingForBrief(recordId);
+      if (booking.success) {
+        await sendReviewRequestEmail(booking.data.bookingId);
+      }
+    }
   }
 
   // eslint-disable-next-line no-console

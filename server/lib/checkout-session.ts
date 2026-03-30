@@ -51,6 +51,12 @@ export async function createStripeCheckoutSession(body: CheckoutBody): Promise<R
       success_url: SUCCESS_URL,
       cancel_url: CANCEL_URL,
       metadata: sessionMetadata,
+      payment_intent_data: {
+        metadata: {
+          briefId: briefId.trim(),
+          spiceKreweCheckout: 'featured_matching',
+        },
+      },
       line_items: [
         {
           quantity: 1,

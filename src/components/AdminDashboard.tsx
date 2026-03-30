@@ -1,9 +1,13 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useApp } from '../contexts/AppContext';
 import { Lock, Eye, EyeOff, Map } from 'lucide-react';
-
-const TOKEN_KEY = 'sk_admin_token';
+import {
+  ADMIN_TOKEN_KEY,
+  readAdminToken,
+  isAdminMfaVerified,
+  clearAdminSession,
+} from '../lib/adminSession';
 
 function apiPath(p: string): string {
   const base = import.meta.env.VITE_APP_ORIGIN?.replace(/\/$/, '') ?? '';
@@ -11,18 +15,28 @@ function apiPath(p: string): string {
 }
 
 export default function AdminDashboard() {
+  const navigate = useNavigate();
   const [password, setPassword] = useState('');
-  const [isAuthenticated, setIsAuthenticated] = useState(() =>
-    Boolean(typeof sessionStorage !== 'undefined' && sessionStorage.getItem(TOKEN_KEY)),
-  );
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    if (typeof sessionStorage === 'undefined') return false;
+    return Boolean(readAdminToken() && isAdminMfaVerified());
+  });
   const [error, setError] = useState('');
   const [loginLoading, setLoginLoading] = useState(false);
   const { showMap, setShowMap } = useApp();
 
   useEffect(() => {
-    const t = sessionStorage.getItem(TOKEN_KEY);
-    if (t) setIsAuthenticated(true);
-  }, []);
+    const t = readAdminToken();
+    if (!t) {
+      setIsAuthenticated(false);
+      return;
+    }
+    if (!isAdminMfaVerified()) {
+      navigate('/admin/mfa-verify', { replace: true });
+      return;
+    }
+    setIsAuthenticated(true);
+  }, [navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,16 +48,21 @@ export default function AdminDashboard() {
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
         body: JSON.stringify({ password }),
       });
-      const json = (await res.json().catch(() => null)) as { token?: string; error?: string };
+      const json = (await res.json().catch(() => null)) as {
+        token?: string;
+        error?: string;
+        role?: string;
+        mfaRequired?: boolean;
+      };
       if (!res.ok) {
         setError(json?.error || 'Login failed');
         setPassword('');
         return;
       }
       if (json?.token) {
-        sessionStorage.setItem(TOKEN_KEY, json.token);
-        setIsAuthenticated(true);
+        sessionStorage.setItem(ADMIN_TOKEN_KEY, json.token);
         setPassword('');
+        navigate('/admin/mfa-verify', { replace: true });
       } else {
         setError('Invalid server response');
       }
@@ -55,7 +74,7 @@ export default function AdminDashboard() {
   };
 
   const handleLogout = () => {
-    sessionStorage.removeItem(TOKEN_KEY);
+    clearAdminSession();
     setIsAuthenticated(false);
   };
 
@@ -76,7 +95,7 @@ export default function AdminDashboard() {
             Admin Dashboard
           </h1>
           <p className="text-gray-600 text-center mb-8">
-            Enter password to access settings (server-verified).
+            Super-Admin password (server-verified). MFA step follows (Flomisma Gold G5).
           </p>
           <form onSubmit={handleLogin}>
             <div className="mb-4">

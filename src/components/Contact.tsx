@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useSearchParams } from 'react-router-dom';
 import { Send } from 'lucide-react';
 import { api } from '../services/api';
 
@@ -11,6 +11,7 @@ export default function Contact() {
     message: '',
   });
 
+  const [leadSource, setLeadSource] = useState('');
   const [contactDataConsent, setContactDataConsent] = useState(false);
   const [newsletterEmail, setNewsletterEmail] = useState('');
   const [newsletterConsent, setNewsletterConsent] = useState(false);
@@ -18,6 +19,13 @@ export default function Contact() {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const location = useLocation();
+  const [searchParams] = useSearchParams();
+
+  useEffect(() => {
+    if (searchParams.get('source') === 'flavor-index-early-access') {
+      setLeadSource('flavor_index_early_access');
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     if (location.hash !== '#message') return;
@@ -40,6 +48,7 @@ export default function Contact() {
         name: formData.name,
         email: formData.email,
         message: formData.message,
+        ...(leadSource ? { lead_source: leadSource } : {}),
       });
 
       if (result.success) {
@@ -83,6 +92,8 @@ export default function Contact() {
             <h3 className="text-2xl font-bold text-gray-900 mb-6">Send Us a Message</h3>
 
             <form id="message" onSubmit={handleSubmit} className="space-y-6">
+              <input type="hidden" name="lead_source" value={leadSource} readOnly />
+
               <div>
                 <label htmlFor="name" className="block text-sm font-semibold text-gray-700 mb-2">
                   Full Name

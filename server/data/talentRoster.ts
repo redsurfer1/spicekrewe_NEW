@@ -13,6 +13,7 @@ export type ServerTalentRecord = {
 
 /** Mirror of `TALENT_FALLBACK` for scoring (no client-only fields). */
 export const PROFESSIONAL_ROSTER: ServerTalentRecord[] = [
+  // slug generated via generateSlug(name) — do not manually edit the slug without also updating vercel.json redirects for the old slug.
   {
     id: 'marcus-johnson',
     name: 'Marcus Johnson',
@@ -22,13 +23,14 @@ export const PROFESSIONAL_ROSTER: ServerTalentRecord[] = [
     bio: 'Former hotel executive chef turned independent consultant. Marcus helps brands launch concepts, tighten food cost, and train brigades without losing soul in the plate.',
   },
   {
-    id: 'aisha-laurent',
-    name: 'Aisha Laurent',
+    id: 'aisha-thompson',
+    name: 'Aisha Thompson',
     role: 'Recipe Developer & R&D Lead',
     specialty: 'Scalable formulations, allergen-aware menus, and co-packer handoffs',
     tags: ['Recipe Development', 'Flavor Consulting', 'Culinary Content'],
     bio: 'Aisha bridges CPG and restaurant R&D: she writes specs, runs bench tests, and documents processes so your product tastes the same at line 1 and line 100.',
   },
+  // slug generated via generateSlug(name) — do not manually edit the slug without also updating vercel.json redirects for the old slug.
   {
     id: 'rafael-cruz',
     name: 'Rafael Cruz',
@@ -37,6 +39,7 @@ export const PROFESSIONAL_ROSTER: ServerTalentRecord[] = [
     tags: ['Food Styling', 'Culinary Content'],
     bio: 'Rafael crafts hero shots and short-form content for national brands. His sets stay efficient, on-brief, and edible-safe from first frame to wrap.',
   },
+  // slug generated via generateSlug(name) — do not manually edit the slug without also updating vercel.json redirects for the old slug.
   {
     id: 'dana-nguyen',
     name: 'Dana Nguyen',

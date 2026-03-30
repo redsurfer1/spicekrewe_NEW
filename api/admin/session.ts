@@ -55,7 +55,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
 
   try {
     const token = mintAdminToken();
-    res.status(200).json({ token, expiresInSeconds: 8 * 60 * 60 });
+    res.status(200).json({
+      token,
+      expiresInSeconds: 8 * 60 * 60,
+      role: 'super_admin',
+      mfaRequired: true,
+    });
   } catch (e) {
     const msg = e instanceof Error ? e.message : 'Token error';
     res.status(500).json({ error: msg });

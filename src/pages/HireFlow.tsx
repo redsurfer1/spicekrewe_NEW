@@ -12,6 +12,7 @@ import type { MatchRecommendation } from '../lib/ai/matchmaker';
 import { parseHireBrief } from '../lib/validation';
 import { patchBriefRecord, submitProjectBrief } from '../lib/brief-api';
 import { isClientStripeCheckoutEnabled } from '../lib/stripe-config';
+import { getSupabaseBrowserOptional } from '../lib/supabase';
 
 const STEPS = 3;
 const FEATURED_MATCHING_USD = 49;
@@ -45,6 +46,9 @@ export default function HireFlow() {
   const [step, setStep] = useState<1 | 2 | 3 | 'payment' | 'success'>(1);
   const [description, setDescription] = useState('');
   const [clientName, setClientName] = useState('');
+  /** Contact email for the brief row (`client_email`); prefilled from Supabase auth when signed in. */
+  const [clientEmail, setClientEmail] = useState('');
+  const [clientEmailFromAuth, setClientEmailFromAuth] = useState(false);
   const [projectTitle, setProjectTitle] = useState('');
   const [budgetRange, setBudgetRange] = useState('');
   const [timeline, setTimeline] = useState('');
@@ -77,6 +81,18 @@ export default function HireFlow() {
       setPostingTier('standard');
     }
   }, [step, stripePaymentsEnabled, postingTier]);
+
+  useEffect(() => {
+    const sb = getSupabaseBrowserOptional();
+    if (!sb) return;
+    void sb.auth.getSession().then(({ data }) => {
+      const em = data.session?.user?.email?.trim();
+      if (em) {
+        setClientEmail(em);
+        setClientEmailFromAuth(true);
+      }
+    });
+  }, []);
 
   const handleStep1Continue = useCallback(async () => {
     const d = description.trim();
@@ -148,6 +164,7 @@ export default function HireFlow() {
     setStep('payment');
   }, [
     clientName,
+    clientEmail,
     projectTitle,
     budgetRange,
     timeline,
@@ -204,13 +221,14 @@ export default function HireFlow() {
   const reviewPayload = useMemo(
     () => ({
       clientName: clientName.trim(),
+      clientEmail: clientEmail.trim(),
       projectTitle: projectTitle.trim(),
       budgetRange: budgetRange.trim(),
       timeline: timeline.trim(),
       description: description.trim(),
       requiredSkills: parseSkills(requiredSkillsRaw),
     }),
-    [clientName, projectTitle, budgetRange, timeline, description, requiredSkillsRaw],
+    [clientName, clientEmail, projectTitle, budgetRange, timeline, description, requiredSkillsRaw],
   );
 
   useEffect(() => {
@@ -506,6 +524,31 @@ export default function HireFlow() {
                       style={inputStyle}
                     />
                   </Field>
+                  <Field
+                    label="Email"
+                    htmlFor="hire-client-email"
+                    hint={
+                      clientEmailFromAuth
+                        ? 'Using your signed-in account email for confirmations and matching updates.'
+                        : 'Required — we use this for payment confirmations and project updates.'
+                    }
+                  >
+                    <input
+                      id="hire-client-email"
+                      type="email"
+                      autoComplete="email"
+                      inputMode="email"
+                      value={clientEmail}
+                      onChange={(e) => setClientEmail(e.target.value)}
+                      readOnly={clientEmailFromAuth}
+                      required
+                      aria-required="true"
+                      style={{
+                        ...inputStyle,
+                        ...(clientEmailFromAuth ? { background: 'var(--sk-body-bg)', cursor: 'not-allowed' } : {}),
+                      }}
+                    />
+                  </Field>
                   <Field label="Project title" htmlFor="hire-title">
                     <input
                       id="hire-title"
@@ -721,6 +764,7 @@ export default function HireFlow() {
                 ) : null}
 
                 <ReviewBlock title="Client" value={reviewPayload.clientName} />
+                <ReviewBlock title="Email" value={reviewPayload.clientEmail} />
                 <ReviewBlock title="Project" value={reviewPayload.projectTitle} />
                 <ReviewBlock title="Budget" value={reviewPayload.budgetRange} />
                 <ReviewBlock title="Timeline" value={reviewPayload.timeline} />

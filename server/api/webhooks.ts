@@ -1,6 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import Stripe from 'stripe';
 import { handleCheckoutSessionCompleted } from '../lib/webhook-checkout-completed';
+import { sendOnboardingEmail1IfNeeded } from '../email/onboarding-sequence';
 
 function readRawBody(req: VercelRequest): Promise<Buffer> {
   return new Promise((resolve, reject) => {
@@ -63,6 +64,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
         paymentStatus: session.payment_status,
       }),
     );
+  }
+
+  if (event.type === 'payment_intent.succeeded') {
+    const pi = event.data.object as Stripe.PaymentIntent;
+    const briefId = typeof pi.metadata?.briefId === 'string' ? pi.metadata.briefId.trim() : '';
+    if (briefId) {
+      await sendOnboardingEmail1IfNeeded(briefId);
+    }
   }
 
   res.status(200).json({ received: true });

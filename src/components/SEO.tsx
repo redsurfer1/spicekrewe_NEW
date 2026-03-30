@@ -3,7 +3,8 @@ import { Helmet } from 'react-helmet-async';
 const DEFAULT_TITLE = 'Spice Krewe – Hire Vetted Culinary Professionals';
 const DEFAULT_DESCRIPTION =
   'Access on-demand culinary R&D and vetted professionals for food brands and restaurant groups.';
-const DEFAULT_IMAGE = 'https://spicekrewe.com/og-image.png';
+export const DEFAULT_OG_IMAGE = 'https://spicekrewe.com/og-image.png';
+const DEFAULT_IMAGE = DEFAULT_OG_IMAGE;
 /** Production origin — no trailing slash (homepage canonical is this exact string). */
 export const SITE_URL = 'https://spicekrewe.com';
 
@@ -26,6 +27,9 @@ interface SEOProps {
   path?: string;
   /** Injected as <script type="application/ld+json"> (e.g. ProfessionalService). */
   structuredData?: Record<string, unknown> | Record<string, unknown>[];
+  /** Optional regional hints for local landing pages (e.g. Memphis hub). */
+  geoRegion?: string;
+  geoPlacename?: string;
 }
 
 export default function SEO({
@@ -36,6 +40,8 @@ export default function SEO({
   image = DEFAULT_IMAGE,
   path = '',
   structuredData,
+  geoRegion,
+  geoPlacename,
 }: SEOProps) {
   const canonicalUrl = resolveCanonicalUrl(path);
 
@@ -51,6 +57,8 @@ export default function SEO({
       <link rel="canonical" href={canonicalUrl} />
       <title>{title}</title>
       <meta name="description" content={description} />
+      {geoRegion ? <meta name="geo.region" content={geoRegion} /> : null}
+      {geoPlacename ? <meta name="geo.placename" content={geoPlacename} /> : null}
       <meta property="og:type" content="website" />
       <meta property="og:title" content={ogTitle} />
       <meta property="og:description" content={ogDescription} />

@@ -1,11 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Activity, Database, Radio, ShieldCheck, Users } from 'lucide-react';
+import { Activity, AlertTriangle, Database, Radio, ShieldCheck, Timer, Users } from 'lucide-react';
 import Navbar from '../../components/Navigation';
 import Footer from '../../components/Footer';
 import SEO from '../../components/SEO';
-
-const TOKEN_KEY = 'sk_admin_token';
+import { clearAdminSession, isAdminMfaVerified, readAdminToken } from '../../lib/adminSession';
 
 type MatchmakerLogRow = {
   id: string;
@@ -29,11 +28,55 @@ type HealthPayload = {
   }>;
   recentBriefsError?: string;
   matchmakerLogs?: MatchmakerLogRow[];
+  trdPipeline?: {
+    pending: number;
+    generating: number;
+    complete: number;
+    failed: number;
+  };
+  matchQuality?: {
+    good: number;
+    bad: number;
+    satisfactionPct: number | null;
+  };
+  pipelineStatus?: string;
+  stripeCheckoutPipeline?: {
+    status: string;
+    detail?: string;
+    recent: Array<{
+      stripeEventId: string;
+      briefId: string | null;
+      paymentPaid: boolean;
+      trdStatus: string | null;
+      workflowStatus: string | null;
+      flags: string[];
+    }>;
+  };
+  slaMonitor?: {
+    functionName: string;
+    lastRunAt: string | null;
+    lastStatus: string | null;
+    failureCount: number;
+    lastCorrelationId: string | null;
+    lastError: string | null;
+  } | null;
+  dataProtection?: {
+    postureVersion: string;
+    transit: string;
+    atRest: string;
+  };
 };
 
 function apiPath(p: string): string {
   const base = import.meta.env.VITE_APP_ORIGIN?.replace(/\/$/, '') ?? '';
   return `${base}${p}`;
+}
+
+function pipelineBadgeClass(status: string | undefined): string {
+  if (status === 'CRITICAL') return 'text-red-700';
+  if (status === 'DEGRADED') return 'text-amber-700';
+  if (status === 'UNKNOWN') return 'text-gray-600';
+  return 'text-green-700';
 }
 
 export default function AdminHealthPage() {
@@ -43,9 +86,13 @@ export default function AdminHealthPage() {
   const [loading, setLoading] = useState(true);
 
   const load = useCallback(async () => {
-    const token = sessionStorage.getItem(TOKEN_KEY);
+    const token = readAdminToken();
     if (!token) {
       navigate('/admin', { replace: true });
+      return;
+    }
+    if (!isAdminMfaVerified()) {
+      navigate('/admin/mfa-verify', { replace: true });
       return;
     }
     setLoading(true);
@@ -55,7 +102,7 @@ export default function AdminHealthPage() {
         headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' },
       });
       if (res.status === 401) {
-        sessionStorage.removeItem(TOKEN_KEY);
+        clearAdminSession();
         navigate('/admin', { replace: true });
         return;
       }
@@ -78,6 +125,9 @@ export default function AdminHealthPage() {
     void load();
   }, [load]);
 
+  const stripe = data?.stripeCheckoutPipeline;
+  const sla = data?.slaMonitor;
+
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-gray-50 to-gray-100">
       <SEO title="System Health – Spice Krewe Admin" path="/admin/health" />
@@ -97,6 +147,118 @@ export default function AdminHealthPage() {
           <div className="rounded-sk-md border border-red-200 bg-red-50 p-4 text-red-800">{error}</div>
         ) : data ? (
           <div className="space-y-6">
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="rounded-sk-md border border-sk-card-border bg-white p-5 shadow-sm">
+                <div className="flex items-center gap-2 mb-2">
+                  <AlertTriangle className="h-5 w-5 text-spice-purple" aria-hidden />
+                  <h2 className="font-semibold text-gray-900">Stripe × TRD pipeline</h2>
+                </div>
+                <p className="text-sm text-gray-600">
+                  Last 5 <code className="text-xs bg-gray-100 px-1 rounded">checkout.session.completed</code>
+                  :{' '}
+                  <strong className={pipelineBadgeClass(data.pipelineStatus ?? stripe?.status)}>
+                    {data.pipelineStatus ?? stripe?.status ?? '—'}
+                  </strong>
+                </p>
+                {stripe?.detail ? (
+                  <p className="mt-2 text-xs text-gray-500">{stripe.detail}</p>
+                ) : null}
+                {stripe?.recent?.length ? (
+                  <ul className="mt-3 text-xs text-gray-600 space-y-1 font-mono">
+                    {stripe.recent.map((r) => (
+                      <li key={r.stripeEventId}>
+                        {r.stripeEventId.slice(0, 14)}… paid={String(r.paymentPaid)} trd=
+                        {r.trdStatus ?? '—'} {r.flags.length ? `[${r.flags.join(', ')}]` : ''}
+                      </li>
+                    ))}
+                  </ul>
+                ) : null}
+              </div>
+
+              <div className="rounded-sk-md border border-sk-card-border bg-white p-5 shadow-sm">
+                <div className="flex items-center gap-2 mb-2">
+                  <Timer className="h-5 w-5 text-spice-blue" aria-hidden />
+                  <h2 className="font-semibold text-gray-900">SLA monitor (Edge)</h2>
+                </div>
+                {sla ? (
+                  <p className="text-sm text-gray-600">
+                    Last run:{' '}
+                    <strong>{sla.lastRunAt ? new Date(sla.lastRunAt).toISOString() : '—'}</strong>
+                    <br />
+                    Status: <strong>{sla.lastStatus ?? '—'}</strong> · Failures:{' '}
+                    <strong className={sla.failureCount > 0 ? 'text-amber-700' : ''}>{sla.failureCount}</strong>
+                    {sla.lastError ? (
+                      <span className="block mt-2 text-xs text-red-700 break-words">{sla.lastError}</span>
+                    ) : null}
+                  </p>
+                ) : (
+                  <p className="text-sm text-gray-600">
+                    No <code className="text-xs bg-gray-100 px-1 rounded">sla_monitor_runs</code> row yet (function
+                    must run once after migration).
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {data.dataProtection ? (
+              <div className="rounded-sk-md border border-sk-card-border bg-white p-5 shadow-sm">
+                <div className="flex items-center gap-2 mb-2">
+                  <ShieldCheck className="h-5 w-5 text-spice-blue" aria-hidden />
+                  <h2 className="font-semibold text-gray-900">Data protection posture (G16)</h2>
+                </div>
+                <p className="text-sm text-gray-600">
+                  Version <strong>{data.dataProtection.postureVersion}</strong> — see{' '}
+                  <code className="text-xs bg-gray-100 px-1 rounded">server/lib/crypto.ts</code>.
+                </p>
+                <p className="text-xs text-gray-500 mt-2">{data.dataProtection.transit}</p>
+                <p className="text-xs text-gray-500">{data.dataProtection.atRest}</p>
+              </div>
+            ) : null}
+
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="rounded-sk-md border border-sk-card-border bg-white p-5 shadow-sm">
+                <div className="flex items-center gap-2 mb-2">
+                  <Activity className="h-5 w-5 text-spice-purple" aria-hidden />
+                  <h2 className="font-semibold text-gray-900">TRD pipeline (24h)</h2>
+                </div>
+                <p className="text-sm text-gray-600">
+                  {data.trdPipeline ? (
+                    <>
+                      pending: <strong>{data.trdPipeline.pending}</strong> | generating:{' '}
+                      <strong>{data.trdPipeline.generating}</strong> | complete:{' '}
+                      <strong>{data.trdPipeline.complete}</strong> | failed:{' '}
+                      <strong>{data.trdPipeline.failed}</strong>
+                    </>
+                  ) : (
+                    '—'
+                  )}
+                </p>
+              </div>
+
+              <div className="rounded-sk-md border border-sk-card-border bg-white p-5 shadow-sm">
+                <div className="flex items-center gap-2 mb-2">
+                  <ShieldCheck className="h-5 w-5 text-spice-blue" aria-hidden />
+                  <h2 className="font-semibold text-gray-900">Match quality (30d)</h2>
+                </div>
+                <p className="text-sm text-gray-600">
+                  {data.matchQuality ? (
+                    <>
+                      Last 30 days: <strong>{data.matchQuality.good}</strong> good /{' '}
+                      <strong>{data.matchQuality.bad}</strong> bad
+                      {data.matchQuality.satisfactionPct != null ? (
+                        <>
+                          {' '}
+                          / <strong>{data.matchQuality.satisfactionPct}%</strong> satisfaction
+                        </>
+                      ) : null}
+                    </>
+                  ) : (
+                    '—'
+                  )}
+                </p>
+              </div>
+            </div>
+
             <div className="grid gap-4 md:grid-cols-2">
               <div className="rounded-sk-md border border-sk-card-border bg-white p-5 shadow-sm">
                 <div className="flex items-center gap-2 mb-2">
@@ -135,13 +297,11 @@ export default function AdminHealthPage() {
                 <h2 className="font-semibold text-gray-900">Predictive matchmaker log</h2>
               </div>
               <p className="text-xs text-gray-500 mb-3">
-                Shown after a Featured brief is paid (TRD skills vs roster). SMS/email hooks are stubbed for SendGrid/Twilio.
+                Durable rows in <code className="text-xs bg-gray-100 px-1 rounded">matchmaker_logs</code> (G4); in-memory
+                fallback only when the table is empty. TRD skills vs roster; SMS/email hooks stubbed.
               </p>
               {!data.matchmakerLogs || data.matchmakerLogs.length === 0 ? (
-                <p className="text-sm text-gray-600">
-                  No in-process entries yet (cold starts clear memory).                 After payment, lines also sync to Supabase{' '}
-                  <code className="text-xs bg-gray-100 px-1 rounded">predictive_match_summary</code> when the column is present.
-                </p>
+                <p className="text-sm text-gray-600">No entries yet.</p>
               ) : (
                 <ul className="divide-y divide-gray-100 space-y-0">
                   {data.matchmakerLogs.map((row) => (
@@ -201,7 +361,7 @@ export default function AdminHealthPage() {
                 type="button"
                 className="text-gray-600 underline"
                 onClick={() => {
-                  sessionStorage.removeItem(TOKEN_KEY);
+                  clearAdminSession();
                   navigate('/admin');
                 }}
               >

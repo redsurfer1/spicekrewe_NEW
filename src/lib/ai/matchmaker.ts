@@ -1,8 +1,12 @@
 /**
  * Spice Krewe Lab — Gemini matchmaker: map scrubbed project briefs to roster professionals.
+ *
+ * G12/G13: Response shape is validated against `src/api/v1/schema.ts` (Flavor Intelligence contract).
+ * Authoritative post-payment matching + persistence runs on the server (`server/lib/matchmakerAlerts.ts`, Stripe webhook).
  */
 
 import { GoogleGenAI } from '@google/genai';
+import { flavorMatchmakerResponseSchema } from '../../api/v1/schema';
 import type { Result } from '../types/results';
 import type { TalentRecord } from '../../types/talentRecord';
 import { scrubContext } from './privacy';
@@ -97,6 +101,8 @@ function resolveRecommendation(raw: RawMatch, roster: TalentRecord[]): MatchReco
 /**
  * Picks up to 3 best-fit professionals for a scrubbed brief. Returns Result for quota/timeouts/parse errors.
  */
+// TODO: weight candidates by historical match_feedback satisfaction rate once feedback table has 50+ rows.
+// Query: SELECT talent_id, AVG(rating::int) as score FROM match_feedback GROUP BY talent_id
 export async function findTopMatches(
   brief: string,
   roster: TalentRecord[],
@@ -176,7 +182,8 @@ Return only valid JSON.`;
       return { success: false, error: new Error('Model returned no valid roster matches') };
     }
 
-    return { success: true, data: { matches: resolved } };
+    const data = flavorMatchmakerResponseSchema.parse({ matches: resolved });
+    return { success: true, data };
   } catch (e) {
     const err = e instanceof Error ? e : new Error(String(e));
     return { success: false, error: err };

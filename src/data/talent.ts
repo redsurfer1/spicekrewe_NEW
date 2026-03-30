@@ -4,9 +4,19 @@ import { fetchProfessionalsFromSupabase } from '../lib/professionalsFromSupabase
 
 export type { TalentRecord } from '../types/talentRecord';
 
+/** Profile ids shown for `?location=Memphis` on the talent directory (Mid-South roster). */
+export const MEMPHIS_AREA_TALENT_IDS: readonly string[] = ['rafael-cruz'];
+
+/** `?location=Nashville` directory filter (Music City roster). */
+export const NASHVILLE_AREA_TALENT_IDS: readonly string[] = ['marcus-johnson', 'aisha-thompson'];
+
+/** `?location=New Orleans` directory filter (Gulf South roster). */
+export const NEW_ORLEANS_AREA_TALENT_IDS: readonly string[] = ['rafael-cruz'];
+
 /** Offline / fallback seed — used when Supabase is unavailable or returns an error.
  * Server predictive matchmaking mirrors this roster in `server/data/talentRoster.ts` — keep both in sync. */
 export const TALENT_FALLBACK: TalentRecord[] = [
+  // slug generated via generateSlug(name) — do not manually edit the slug without also updating vercel.json redirects for the old slug.
   {
     id: 'marcus-johnson',
     name: 'Marcus Johnson',
@@ -23,10 +33,11 @@ export const TALENT_FALLBACK: TalentRecord[] = [
     tags: ['Menu Design', 'Private Chef', 'Recipe Development'],
     bio: 'Former hotel executive chef turned independent consultant. Marcus helps brands launch concepts, tighten food cost, and train brigades without losing soul in the plate.',
   },
+  // slug generated via generateSlug(name) — do not manually edit the slug without also updating vercel.json redirects for the old slug.
   {
-    id: 'aisha-laurent',
-    name: 'Aisha Laurent',
-    initials: 'AL',
+    id: 'aisha-thompson',
+    name: 'Aisha Thompson',
+    initials: 'AT',
     role: 'Recipe Developer & R&D Lead',
     specialty: 'Scalable formulations, allergen-aware menus, and co-packer handoffs',
     rate: '$165/hr',
@@ -35,7 +46,7 @@ export const TALENT_FALLBACK: TalentRecord[] = [
     verified: true,
     available: true,
     avatarColor: 'var(--sk-blue)',
-    avatarText: 'AL',
+    avatarText: 'AT',
     tags: ['Recipe Development', 'Flavor Consulting', 'Culinary Content'],
     bio: 'Aisha bridges CPG and restaurant R&D: she writes specs, runs bench tests, and documents processes so your product tastes the same at line 1 and line 100.',
   },
@@ -55,6 +66,7 @@ export const TALENT_FALLBACK: TalentRecord[] = [
     tags: ['Food Styling', 'Culinary Content'],
     bio: 'Rafael crafts hero shots and short-form content for national brands. His sets stay efficient, on-brief, and edible-safe from first frame to wrap.',
   },
+  // slug generated via generateSlug(name) — do not manually edit the slug without also updating vercel.json redirects for the old slug.
   {
     id: 'dana-nguyen',
     name: 'Dana Nguyen',

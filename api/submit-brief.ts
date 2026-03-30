@@ -59,9 +59,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
     return;
   }
 
+  const clientEmail = data.clientEmail.trim().toLowerCase().slice(0, 320);
+  if (!clientEmail.includes('@')) {
+    res.status(400).json({ error: 'Valid client email is required', requestId });
+    return;
+  }
+
   const primaryIds = (data.primaryInterestTalentIds ?? []).filter(Boolean);
   const fields: Record<string, string | number | boolean | string[]> = {
     ClientName: clientName,
+    ClientEmail: clientEmail,
     ProjectTitle: projectTitle,
     BudgetRange: data.budgetRange.trim().slice(0, 120),
     Timeline: data.timeline.trim().slice(0, 200),

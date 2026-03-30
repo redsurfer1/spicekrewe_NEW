@@ -1,15 +1,36 @@
 import type { TalentRecord } from '../../types/talentRecord';
+import { buildServicePageStructuredData } from './servicePageJsonLd';
 
 const DEFAULT_SITE = 'https://spicekrewe.com';
 
+/** Hire landing routes: ServicePage JSON-LD (see `buildServicePageStructuredData`). */
+export type HireLandingStructuredDataInput = {
+  pageName: string;
+  pageDescription: string;
+  path: string;
+  serviceName: string;
+  serviceDescription: string;
+  areaServed?: string;
+};
+
+function isHireLandingInput(arg: TalentRecord | HireLandingStructuredDataInput): arg is HireLandingStructuredDataInput {
+  return 'pageName' in arg && 'serviceName' in arg && 'serviceDescription' in arg;
+}
+
 /**
- * Schema.org ProfessionalService JSON-LD for talent profile pages.
+ * Talent profiles: `ProfessionalService` node for `/talent/:id`.
+ * Hire landings: pass a landing input object for ServicePage-style JSON-LD (`buildServicePageStructuredData`).
  */
 export function buildProfessionalServiceStructuredData(
-  row: TalentRecord,
-  siteUrl: string = DEFAULT_SITE,
+  rowOrLanding: TalentRecord | HireLandingStructuredDataInput,
+  siteUrl?: string,
 ): Record<string, unknown> {
-  const base = siteUrl.replace(/\/$/, '');
+  if (isHireLandingInput(rowOrLanding)) {
+    return buildServicePageStructuredData(rowOrLanding);
+  }
+
+  const row = rowOrLanding;
+  const base = (siteUrl ?? DEFAULT_SITE).replace(/\/$/, '');
   const profileUrl = `${base}/talent/${row.id}`;
 
   return {

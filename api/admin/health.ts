@@ -7,6 +7,11 @@ import {
 } from '../../server/lib/supabase-brief';
 import type { BriefAuditRow } from '../../server/lib/supabase-brief';
 import { getRecentMatchmakerLogs } from '../../server/lib/matchmakerAlerts';
+import { listMatchmakerLogsFromDb } from '../../server/lib/matchmakerLogDb';
+import { getMatchQualityLast30d, getTrdPipelineLast24h } from '../../server/lib/health-metrics';
+import { evaluateStripeCheckoutTrdHealth } from '../../server/lib/stripe-checkout-health';
+import { getSlaMonitorStatus } from '../../server/lib/sla-monitor-status';
+import { DATA_PROTECTION_POSTURE_VERSION } from '../../server/lib/crypto';
 
 function cors(res: VercelResponse, origin: string | undefined): void {
   const allow = process.env.SERVER_ALLOWED_ORIGIN?.trim() || origin || '*';
@@ -42,6 +47,26 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
   const supabasePing = await pingSupabaseBriefs();
   const latency = await measureSupabaseLatencyMs();
   const recent = await listRecentBriefsForHealth(5);
+  const trdPipeline = await getTrdPipelineLast24h();
+  const matchQuality = await getMatchQualityLast30d();
+  const [stripeCheckoutPipeline, slaMonitor] = await Promise.all([
+    evaluateStripeCheckoutTrdHealth(),
+    getSlaMonitorStatus(),
+  ]);
+
+  let matchmakerLogs = await listMatchmakerLogsFromDb(25);
+  if (matchmakerLogs.length === 0) {
+    matchmakerLogs = getRecentMatchmakerLogs(25);
+  }
+
+  const pipelineStatus =
+    stripeCheckoutPipeline.status === 'CRITICAL'
+      ? 'CRITICAL'
+      : stripeCheckoutPipeline.status === 'DEGRADED'
+        ? 'DEGRADED'
+        : stripeCheckoutPipeline.status === 'UNKNOWN'
+          ? 'UNKNOWN'
+          : 'OK';
 
   res.status(200).json({
     generatedAt: new Date().toISOString(),
@@ -64,6 +89,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
         }))
       : [],
     recentBriefsError: recent.success ? undefined : recent.error.message,
-    matchmakerLogs: getRecentMatchmakerLogs(25),
+    matchmakerLogs,
+    trdPipeline,
+    matchQuality,
+    stripeCheckoutPipeline,
+    slaMonitor,
+    pipelineStatus,
+    dataProtection: {
+      postureVersion: DATA_PROTECTION_POSTURE_VERSION,
+      transit: 'TLS 1.2+ (prefer TLS 1.3 at edge); see server/lib/crypto.ts',
+      atRest: 'Supabase AES-256 at rest; see server/lib/crypto.ts',
+    },
   });
 }

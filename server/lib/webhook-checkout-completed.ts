@@ -7,6 +7,7 @@ import {
   generateTechnicalRequirementsDocument,
 } from './ai/autoScoper';
 import { runPredictiveMatchmakerAfterFeaturedPayment } from './matchmakerAlerts';
+import { ensureBookingForBrief } from './bookings';
 
 function alreadyProcessedEvent(fields: Record<string, unknown>, stripeEventId: string): boolean {
   const prev = fields.StripeLastWebhookEventId ?? fields.stripeLastWebhookEventId;
@@ -43,6 +44,8 @@ async function syncTechnicalRequirementsFromBrief(
     return;
   }
 
+  await patchBriefRecord(briefId, { TrdStatus: 'generating' });
+
   const trdResult = await generateTechnicalRequirementsDocument(description);
   const trd = trdResult.success ? trdResult.data : buildFallbackTrd(description);
   if (!trdResult.success) {
@@ -61,6 +64,7 @@ async function syncTechnicalRequirementsFromBrief(
   const payload = formatTrdForAirtable(trd);
   const patched = await patchBriefRecord(briefId, {
     TechnicalRequirements: payload,
+    TrdStatus: 'complete',
   });
 
   if (!patched.success) {
@@ -74,6 +78,7 @@ async function syncTechnicalRequirementsFromBrief(
         message: patched.error.message,
       }),
     );
+    await patchBriefRecord(briefId, { TrdStatus: 'failed' });
   } else {
     // eslint-disable-next-line no-console
     console.log(
@@ -129,14 +134,18 @@ export async function handleCheckoutSessionCompleted(
     return { success: true, data: { skipped: true, briefId } };
   }
 
+  const paidAt = new Date().toISOString();
   const withEventId = await patchBriefRecord(briefId, {
     PaymentStatus: 'Paid',
     IsActive: true,
+    PaidAt: paidAt,
+    WorkflowStatus: 'active',
     StripeLastWebhookEventId: stripeEventId,
     stripe_checkout_session_id: session.id,
   });
 
   if (withEventId.success) {
+    await ensureBookingForBrief(briefId);
     if (isFeaturedMatchingCheckout(session)) {
       await syncTechnicalRequirementsFromBrief(briefId, fields);
       await runFeaturedMatchmakerPipeline(briefId);
@@ -147,6 +156,8 @@ export async function handleCheckoutSessionCompleted(
   const fallback = await patchBriefRecord(briefId, {
     PaymentStatus: 'Paid',
     IsActive: true,
+    PaidAt: paidAt,
+    WorkflowStatus: 'active',
   });
 
   if (!fallback.success) {
@@ -154,6 +165,7 @@ export async function handleCheckoutSessionCompleted(
   }
 
   if (isFeaturedMatchingCheckout(session)) {
+    await ensureBookingForBrief(briefId);
     const refreshed = await getBriefRecord(briefId);
     const nextFields = refreshed.success ? (refreshed.data.fields as Record<string, unknown>) : fields;
     await syncTechnicalRequirementsFromBrief(briefId, nextFields);

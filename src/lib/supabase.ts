@@ -18,3 +18,13 @@ export function getSupabaseBrowser(): SupabaseClient {
   });
   return browserClient;
 }
+
+/** Same as {@link getSupabaseBrowser} when env is configured; otherwise `null` (e.g. local dev without Supabase). */
+export function getSupabaseBrowserOptional(): SupabaseClient | null {
+  const url = import.meta.env.VITE_SUPABASE_URL as string | undefined;
+  const anon = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
+  if (!url?.trim() || !anon?.trim()) {
+    return null;
+  }
+  return getSupabaseBrowser();
+}
