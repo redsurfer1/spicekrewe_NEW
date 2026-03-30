@@ -1,3 +1,4 @@
+# Spice Krewe — keep authenticated and app areas out of the public index
 User-agent: *
 Disallow: /dashboard
 Disallow: /dashboard/admin

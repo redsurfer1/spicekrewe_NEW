@@ -60,25 +60,34 @@ function App() {
           <Route path="/join" element={<JoinAsProf />} />
           <Route path="/how-it-works" element={<PlaceholderPage />} />
           <Route path="/for-teams" element={<ForTeams />} />
-          <Route path="/login" element={
-            <Suspense fallback={<PageLoader />}>
-              <LoginPage />
-            </Suspense>
-          } />
-          <Route path="/dashboard" element={
-            <ProtectedRoute>
+          <Route
+            path="/login"
+            element={
               <Suspense fallback={<PageLoader />}>
-                <UserDashboard />
+                <LoginPage />
               </Suspense>
-            </ProtectedRoute>
-          } />
-          <Route path="/dashboard/admin" element={
-            <ProtectedRoute allowedRoles={['admin']}>
-              <Suspense fallback={<PageLoader />}>
-                <AdminDashboardNew />
-              </Suspense>
-            </ProtectedRoute>
-          } />
+            }
+          />
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <Suspense fallback={<PageLoader />}>
+                  <UserDashboard />
+                </Suspense>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard/admin"
+            element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <Suspense fallback={<PageLoader />}>
+                  <AdminDashboardNew />
+                </Suspense>
+              </ProtectedRoute>
+            }
+          />
           <Route path="/privacy" element={<PrivacyPage />} />
           <Route path="/terms" element={<TermsPage />} />
           <Route path="/contact" element={<ContactPage />} />

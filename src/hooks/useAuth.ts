@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { User } from '@supabase/supabase-js';
+import type { User } from '@supabase/supabase-js';
 import { getSupabaseBrowserOptional } from '../lib/supabase';
 
 interface Profile {
@@ -45,7 +45,9 @@ export function useAuth(): UseAuthReturn {
 
     async function getSession() {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
 
         if (!mounted) return;
 
@@ -67,11 +69,7 @@ export function useAuth(): UseAuthReturn {
 
     async function fetchProfile(userId: string) {
       try {
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', userId)
-          .maybeSingle();
+        const { data, error } = await supabase.from('profiles').select('*').eq('id', userId).maybeSingle();
 
         if (error) {
           console.error('Error fetching profile:', error);
@@ -86,12 +84,14 @@ export function useAuth(): UseAuthReturn {
       }
     }
 
-    getSession();
+    void getSession();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
       if (!mounted) return;
 
-      (async () => {
+      void (async () => {
         if (session?.user) {
           setUser(session.user);
           await fetchProfile(session.user.id);

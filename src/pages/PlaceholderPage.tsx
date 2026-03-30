@@ -5,7 +5,6 @@ import SEO from '../components/SEO';
 
 const LABELS: Record<string, string> = {
   '/how-it-works': 'How it works',
-  '/login': 'Log in',
   '/dashboard/briefs': 'Your briefs',
 };
 
