@@ -1,7 +1,9 @@
-import { useState, type CSSProperties } from 'react';
-import { Link } from 'react-router-dom';
-import { Check, Star } from 'lucide-react';
+import { useState, useEffect, type CSSProperties } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Check, Star, Heart } from 'lucide-react';
 import type { TalentRecord } from '../types/talentRecord';
+import { useAuth } from '../hooks/useAuth';
+import { getSupabaseBrowserOptional } from '../lib/supabase';
 
 type Props = {
   professional: TalentRecord;
@@ -17,6 +19,11 @@ type Props = {
 
 export default function TalentCard({ professional: p, appendTalentIdQuery = false, className = '', style }: Props) {
   const [hovered, setHovered] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
+  const [savingState, setSavingState] = useState(false);
+  const { user, role } = useAuth();
+  const navigate = useNavigate();
+  const supabase = getSupabaseBrowserOptional();
 
   const profileTo =
     appendTalentIdQuery
@@ -25,6 +32,64 @@ export default function TalentCard({ professional: p, appendTalentIdQuery = fals
 
   const firstName = p.name.trim().split(/\s+/)[0] || p.name;
   const hasReviews = p.reviews > 0;
+
+  const showSaveButton = user && role === 'buyer';
+
+  useEffect(() => {
+    async function checkIfSaved() {
+      if (!supabase || !user || role !== 'buyer') return;
+
+      try {
+        const { data } = await supabase
+          .from('saved_talent')
+          .select('id')
+          .eq('buyer_id', user.id)
+          .eq('talent_id', p.id)
+          .maybeSingle();
+
+        setIsSaved(!!data);
+      } catch (error) {
+        console.error('Error checking saved status:', error);
+      }
+    }
+
+    checkIfSaved();
+  }, [supabase, user, role, p.id]);
+
+  const handleSaveToggle = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+
+    if (!supabase || role !== 'buyer') return;
+
+    setSavingState(true);
+    const newSavedState = !isSaved;
+    setIsSaved(newSavedState);
+
+    try {
+      if (newSavedState) {
+        await supabase
+          .from('saved_talent')
+          .insert({ buyer_id: user.id, talent_id: p.id });
+      } else {
+        await supabase
+          .from('saved_talent')
+          .delete()
+          .eq('buyer_id', user.id)
+          .eq('talent_id', p.id);
+      }
+    } catch (error) {
+      console.error('Error toggling save:', error);
+      setIsSaved(!newSavedState);
+    } finally {
+      setSavingState(false);
+    }
+  };
 
   return (
     <Link
@@ -50,6 +115,21 @@ export default function TalentCard({ professional: p, appendTalentIdQuery = fals
           >
             {p.avatarText}
           </div>
+
+          {showSaveButton && (
+            <button
+              onClick={handleSaveToggle}
+              disabled={savingState}
+              className="flex h-9 w-9 items-center justify-center rounded-full border border-sk-card-border bg-white hover:bg-sk-body-bg transition-colors disabled:opacity-50"
+              aria-label={isSaved ? 'Remove from saved' : 'Save talent'}
+              title={isSaved ? 'Remove from saved' : 'Save talent'}
+            >
+              <Heart
+                size={18}
+                className={`transition-colors ${isSaved ? 'fill-red-500 text-red-500' : 'text-sk-text-muted'}`}
+              />
+            </button>
+          )}
         </div>
 
         <header className="mb-2">

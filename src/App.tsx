@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import HomePage from './pages/HomePage';
 import AboutPage from './pages/AboutPage';
@@ -25,6 +26,12 @@ import ContactPage from './pages/Contact';
 import AdminHealthPage from './pages/admin/Health';
 import AdminMfaVerify from './pages/admin/AdminMfaVerify';
 import { AppProvider } from './contexts/AppContext';
+import { PageLoader } from './components/PageLoader';
+import { ProtectedRoute } from './components/ProtectedRoute';
+
+const LoginPage = lazy(() => import('./pages/LoginPage'));
+const UserDashboard = lazy(() => import('./pages/dashboard/UserDashboard'));
+const AdminDashboardNew = lazy(() => import('./pages/dashboard/AdminDashboard'));
 
 function App() {
   return (
@@ -53,7 +60,25 @@ function App() {
           <Route path="/join" element={<JoinAsProf />} />
           <Route path="/how-it-works" element={<PlaceholderPage />} />
           <Route path="/for-teams" element={<ForTeams />} />
-          <Route path="/login" element={<PlaceholderPage />} />
+          <Route path="/login" element={
+            <Suspense fallback={<PageLoader />}>
+              <LoginPage />
+            </Suspense>
+          } />
+          <Route path="/dashboard" element={
+            <ProtectedRoute>
+              <Suspense fallback={<PageLoader />}>
+                <UserDashboard />
+              </Suspense>
+            </ProtectedRoute>
+          } />
+          <Route path="/dashboard/admin" element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <Suspense fallback={<PageLoader />}>
+                <AdminDashboardNew />
+              </Suspense>
+            </ProtectedRoute>
+          } />
           <Route path="/privacy" element={<PrivacyPage />} />
           <Route path="/terms" element={<TermsPage />} />
           <Route path="/contact" element={<ContactPage />} />
