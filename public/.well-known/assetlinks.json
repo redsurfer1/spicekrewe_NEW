@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.spicekrewe.app",
+      "sha256_cert_fingerprints": [
+        "C1:E7:4C:37:68:47:D9:4C:5A:D8:80:DA:B9:62:64:5E:18:45:2D:34:DE:7D:E3:88:65:FE:97:4E:FA:B0:81:A4"
+      ]
+    }
+  }
+]

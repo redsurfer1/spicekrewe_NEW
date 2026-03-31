@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Spice Krewe Brand Palette -->
+    <color name="sk_navy">#1a1a2e</color>
+    <color name="sk_purple">#4d2f91</color>
+    <color name="sk_purple_light">#b99ee8</color>
+    <color name="sk_gold">#e6a800</color>
+    <color name="sk_surface">#ffffff</color>
+
+    <!-- App Theme Defaults -->
+    <color name="colorPrimary">@color/sk_purple</color>
+    <color name="colorPrimaryDark">@color/sk_navy</color>
+    <color name="colorAccent">@color/sk_gold</color>
+</resources>
