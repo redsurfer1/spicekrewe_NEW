@@ -2,6 +2,41 @@ name: CI
 
 on:
   push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: npm ci
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Build
+        run: npm run build
+
+  security-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: npm ci
+      - name: Audit dependencies
+        run: npm audit --audit-level=high
+      - name: Check for known malicious packages
+        run: npx better-npm-audit audit --level high
+
+name: CI
+
+on:
+  push:
     branches: [main, develop]
   pull_request:
     branches: [main]

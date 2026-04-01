@@ -23,6 +23,7 @@ import AdminDashboard from './components/AdminDashboard';
 import PrivacyPage from './pages/PrivacyPage';
 import TermsPage from './pages/TermsPage';
 import ContactPage from './pages/Contact';
+import DataRequestPage from './pages/DataRequest';
 import AdminHealthPage from './pages/admin/Health';
 import AdminMfaVerify from './pages/admin/AdminMfaVerify';
 import { AppProvider } from './contexts/AppContext';
@@ -91,6 +92,7 @@ function App() {
           <Route path="/privacy" element={<PrivacyPage />} />
           <Route path="/terms" element={<TermsPage />} />
           <Route path="/contact" element={<ContactPage />} />
+          <Route path="/data-request" element={<DataRequestPage />} />
           <Route path="/admin/mfa-verify" element={<AdminMfaVerify />} />
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/admin/health" element={<AdminHealthPage />} />

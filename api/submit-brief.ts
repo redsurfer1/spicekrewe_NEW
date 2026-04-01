@@ -4,6 +4,8 @@
  * Auto-Scoper in `server/lib/webhook-checkout-completed.ts`, which writes `technical_requirements` (JSONB).
  */
 import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { rateLimiter } from '../server/middleware/rateLimiter.js';
+import { validateServerEnv } from '../server/lib/env-validator.js';
 import { createBriefRecord } from '../server/lib/supabase-brief.js';
 import { createRequestId } from '../server/lib/request-id.js';
 import { HireBriefSchema } from '../server/lib/hire-brief-schema.js';
@@ -20,6 +22,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
   const origin = typeof req.headers.origin === 'string' ? req.headers.origin : undefined;
   cors(res, origin);
 
+  try {
+    validateServerEnv();
+  } catch (e) {
+    res.status(500).json({ error: (e instanceof Error ? e.message : 'Server misconfigured') });
+    return;
+  }
+
   if (req.method === 'OPTIONS') {
     res.status(204).end();
     return;
@@ -29,6 +38,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
     res.status(405).json({ error: 'Method not allowed' });
     return;
   }
+
+  const window15m = 15 * 60 * 1000;
+  const window1m = 60 * 1000;
+  const limitedGeneral = await rateLimiter.check(req, res, 'submit-brief', {
+    windowMs: window15m,
+    maxRequests: 20,
+  });
+  if (limitedGeneral) return;
+  const limitedTight = await rateLimiter.check(req, res, 'submit-brief:write', {
+    windowMs: window1m,
+    maxRequests: 5,
+  });
+  if (limitedTight) return;
 
   const requestId =
     (typeof req.headers['x-request-id'] === 'string' && req.headers['x-request-id'].trim()) ||

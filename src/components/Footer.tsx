@@ -165,6 +165,9 @@ export default function Footer() {
             <Link to="/terms" className="hover:text-white transition-colors">
               Terms of Service
             </Link>
+            <Link to="/data-request" className="hover:text-white transition-colors">
+              Data request
+            </Link>
           </div>
         </div>
       </div>

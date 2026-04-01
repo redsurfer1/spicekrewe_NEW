@@ -1,6 +1,7 @@
 import { ReactNode } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import { useIdleTimeout } from '../hooks/useIdleTimeout';
 
 interface ProtectedRouteProps {
   allowedRoles?: string[];
@@ -9,6 +10,7 @@ interface ProtectedRouteProps {
 
 export function ProtectedRoute({ allowedRoles, children }: ProtectedRouteProps) {
   const { user, role, loading } = useAuth();
+  const { showWarning } = useIdleTimeout();
 
   if (loading) {
     return (
@@ -26,5 +28,14 @@ export function ProtectedRoute({ allowedRoles, children }: ProtectedRouteProps) 
     return <Navigate to="/dashboard" replace />;
   }
 
-  return <>{children}</>;
+  return (
+    <>
+      {children}
+      {showWarning && (
+        <div className="fixed bottom-4 right-4 z-[9999] bg-sk-navy text-white px-4 py-3 rounded-sk-lg shadow-lg text-sm max-w-xs">
+          You&apos;ll be signed out in 5 minutes due to inactivity.
+        </div>
+      )}
+    </>
+  );
 }

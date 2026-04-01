@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import SpiceKreweWordmark from '../../components/SpiceKreweWordmark';
@@ -161,7 +162,9 @@ export default function AdminDashboard() {
               </div>
             )}
 
-            {tab !== 'overview' && (
+            {tab === 'quality' && <QualityPanel />}
+
+            {tab !== 'overview' && tab !== 'quality' && (
               <div className="bg-white rounded-sk-lg border border-sk-card-border p-8 text-center">
                 <p className="text-sk-text-muted">This section is coming soon.</p>
               </div>
@@ -169,6 +172,112 @@ export default function AdminDashboard() {
           </div>
         </main>
       </div>
+    </div>
+  );
+}
+
+type MatchQuality = {
+  good: number;
+  bad: number;
+  satisfactionPct: number | null;
+};
+
+
+function QualityPanel() {
+  const [quality, setQuality] = useState<MatchQuality | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    const load = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const res = await fetch('/api/admin/health', {
+          headers: { Accept: 'application/json' },
+        });
+        const json = (await res.json()) as { matchQuality?: MatchQuality; error?: string };
+        if (!res.ok) {
+          if (!cancelled) setError(json.error || res.statusText);
+          return;
+        }
+        if (!cancelled) setQuality(json.matchQuality ?? null);
+      } catch (e) {
+        if (!cancelled) setError(e instanceof Error ? e.message : 'Failed to load match quality');
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+    void load();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const good = quality?.good ?? 0;
+  const bad = quality?.bad ?? 0;
+  const total = good + bad;
+  const satisfaction =
+    quality?.satisfactionPct != null ? `${quality.satisfactionPct.toFixed(1)}%` : '—';
+
+  return (
+    <div className="space-y-6">
+      {loading && <p className="text-sm text-sk-text-muted">Loading match quality…</p>}
+      {error && !loading && (
+        <div className="rounded-sk-md border border-red-200 bg-red-50 p-4 text-red-800 text-sm">
+          {error}
+        </div>
+      )}
+
+      {!loading && !error && (
+        <>
+          <div
+            className={`rounded-sk-md border px-4 py-3 text-sm ${
+              total < 50
+                ? 'border-amber-300 bg-amber-50 text-amber-800'
+                : 'border-emerald-300 bg-emerald-50 text-emerald-800'
+            }`}
+          >
+            {total < 50 ? (
+              <>
+                Matchmaker weighting activates at <strong>50+</strong> ratings. Currently at{' '}
+                <strong>{total}</strong> ratings.
+              </>
+            ) : (
+              <>
+                Matchmaker weighting is <strong>active</strong>. Total ratings:{' '}
+                <strong>{total}</strong>.
+              </>
+            )}
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="bg-white border border-sk-card-border rounded-sk-lg p-4">
+              <p className="text-xs text-sk-text-muted mb-1">Good matches</p>
+              <p className="text-2xl font-medium text-sk-navy">{good}</p>
+            </div>
+            <div className="bg-white border border-sk-card-border rounded-sk-lg p-4">
+              <p className="text-xs text-sk-text-muted mb-1">Bad matches</p>
+              <p className="text-2xl font-medium text-sk-navy">{bad}</p>
+            </div>
+            <div className="bg-white border border-sk-card-border rounded-sk-lg p-4">
+              <p className="text-xs text-sk-text-muted mb-1">Satisfaction rate</p>
+              <p className="text-2xl font-medium text-sk-navy">{satisfaction}</p>
+            </div>
+          </div>
+
+          <div className="bg-white border border-dashed border-sk-card-border rounded-sk-lg p-4 text-sm text-sk-text-muted">
+            Per-talent match feedback breakdown is not yet available in the API. Once the
+            `match_feedback` schema includes per-talent aggregates, this panel will show:
+            <br />
+            <code className="text-xs bg-gray-100 px-1 rounded">
+              Talent | Good | Bad | Score %
+            </code>
+            .
+          </div>
+        </>
+      )}
     </div>
   );
 }

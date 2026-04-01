@@ -6,6 +6,8 @@
 export function sanitizeBriefShortText(input: string, maxLen: number): string {
   const s = String(input ?? '')
     .replace(/\r\n/g, '\n')
+    // Strip ASCII control characters except common whitespace (\t, \n, \r)
+    // eslint-disable-next-line no-control-regex
     .replace(/[\x00-\x08\x0b\x0c\x0e-\x1f]/g, '')
     .replace(/[<>]/g, '')
     .trim();

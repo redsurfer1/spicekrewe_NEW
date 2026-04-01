@@ -65,6 +65,10 @@ type HealthPayload = {
     transit: string;
     atRest: string;
   };
+  secretsHealth?: {
+    configured: string[];
+    missing: string[];
+  };
 };
 
 function apiPath(p: string): string {
@@ -112,7 +116,23 @@ export default function AdminHealthPage() {
         setData(null);
         return;
       }
-      setData(json);
+      // Fetch secrets health in parallel
+      const secretsRes = await fetch(apiPath('/api/admin/secrets-health'), {
+        headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' },
+      });
+      let secretsHealth: HealthPayload['secretsHealth'] | undefined;
+      if (secretsRes.ok) {
+        const sjson = (await secretsRes.json()) as {
+          configured?: string[];
+          missing?: string[];
+        };
+        secretsHealth = {
+          configured: sjson.configured ?? [],
+          missing: sjson.missing ?? [],
+        };
+      }
+
+      setData({ ...json, secretsHealth });
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to load health');
       setData(null);
@@ -277,6 +297,30 @@ export default function AdminHealthPage() {
                 {data.supabase.detail ? (
                   <p className="mt-2 text-xs text-gray-500 break-words">{data.supabase.detail}</p>
                 ) : null}
+              </div>
+
+              <div className="rounded-sk-md border border-sk-card-border bg-white p-5 shadow-sm">
+                <div className="flex items-center gap-2 mb-2">
+                  <Radio className="h-5 w-5 text-spice-blue" aria-hidden />
+                  <h2 className="font-semibold text-gray-900">Secrets health</h2>
+                </div>
+                <p className="text-sm text-gray-600">
+                  {data.secretsHealth ? (
+                    <>
+                      Configured:{' '}
+                      {data.secretsHealth.configured.length
+                        ? data.secretsHealth.configured.join(', ')
+                        : 'none'}
+                      <br />
+                      Missing:{' '}
+                      {data.secretsHealth.missing.length
+                        ? data.secretsHealth.missing.join(', ')
+                        : 'none'}
+                    </>
+                  ) : (
+                    '—'
+                  )}
+                </p>
               </div>
 
               <div className="rounded-sk-md border border-sk-card-border bg-white p-5 shadow-sm">

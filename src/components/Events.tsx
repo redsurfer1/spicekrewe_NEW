@@ -22,8 +22,8 @@ export default function Events() {
       setLoading(true);
       const response = await api.getEvents();
 
-      if (response.success && response.data) {
-        setEvents(response.data);
+      if (response.success && Array.isArray(response.data)) {
+        setEvents(response.data as Event[]);
       } else {
         setEvents([]);
       }

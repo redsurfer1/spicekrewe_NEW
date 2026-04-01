@@ -11,7 +11,7 @@ type Tab = 'signin' | 'register';
 type Role = 'buyer' | 'talent';
 
 export default function LoginPage() {
-  const location = useLocation();
+  const location = useLocation() as { state?: { defaultTab?: 'register'; reason?: string } };
   const [tab, setTab] = useState<Tab>('signin');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -20,6 +20,7 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [idleMessage, setIdleMessage] = useState<string | null>(null);
   const navigate = useNavigate();
   const supabase = getSupabaseBrowserOptional();
   const { user } = useAuth();
@@ -27,6 +28,9 @@ export default function LoginPage() {
   useEffect(() => {
     if (location.state?.defaultTab === 'register') {
       setTab('register');
+    }
+    if (location.state?.reason === 'idle_timeout') {
+      setIdleMessage('You were signed out due to inactivity.');
     }
   }, [location.state]);
 
@@ -173,6 +177,12 @@ export default function LoginPage() {
             <div className="flex justify-center">
               <SpiceKreweWordmark className="w-32" />
             </div>
+
+            {idleMessage && (
+              <div className="mb-3 rounded-sk-md border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-800 text-center">
+                {idleMessage}
+              </div>
+            )}
 
             <h1 className="text-2xl font-medium text-sk-navy mt-4 mb-1 text-center">
               Welcome back

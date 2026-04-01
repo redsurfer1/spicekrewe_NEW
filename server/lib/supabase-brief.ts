@@ -1,5 +1,6 @@
 import type { Result } from './result.js';
 import { getSupabaseServiceRole } from './supabase.js';
+import { sanitizeBrief } from './sanitize.js';
 
 /** Legacy + DB-shaped fields for pipelines (Auto-Scoper, matchmaker). */
 export type BriefFieldsMap = Record<string, unknown>;
@@ -278,38 +279,50 @@ export async function createBriefRecord(
 ): Promise<Result<{ recordId: string }, Error>> {
   const sb = getSupabaseServiceRole();
 
-  const rawEmail = fields.ClientEmail ?? fields.client_email;
-  const normalizedEmail =
-    typeof rawEmail === 'string' && rawEmail.trim().includes('@') ? rawEmail.trim().toLowerCase() : null;
+  try {
+    const sanitized = sanitizeBrief({
+      client_name: String(fields.ClientName ?? fields.client_name ?? ''),
+      client_email: String(fields.ClientEmail ?? fields.client_email ?? ''),
+      project_title: String(fields.ProjectTitle ?? fields.project_title ?? ''),
+      budget_range: String(fields.BudgetRange ?? fields.budget_range ?? ''),
+      timeline: String(fields.Timeline ?? fields.timeline ?? ''),
+      description: String(fields.Description ?? fields.description ?? ''),
+      required_skills: String(fields.RequiredSkills ?? fields.required_skills ?? ''),
+    });
 
-  const row: Record<string, unknown> = {
-    client_name: String(fields.ClientName ?? fields.client_name ?? ''),
-    ...(normalizedEmail ? { client_email: normalizedEmail } : {}),
-    project_title: String(fields.ProjectTitle ?? fields.project_title ?? ''),
-    budget_range: String(fields.BudgetRange ?? fields.budget_range ?? ''),
-    timeline: String(fields.Timeline ?? fields.timeline ?? ''),
-    description: String(fields.Description ?? fields.description ?? ''),
-    required_skills: String(fields.RequiredSkills ?? fields.required_skills ?? ''),
-    payment_status: 'unpaid',
-    is_active: false,
-  };
+    const row: Record<string, unknown> = {
+      client_name: sanitized.client_name,
+      client_email: sanitized.client_email,
+      project_title: sanitized.project_title,
+      budget_range: sanitized.budget_range,
+      timeline: sanitized.timeline,
+      description: sanitized.description,
+      required_skills: sanitized.required_skills,
+      payment_status: 'unpaid',
+      workflow_status: 'pending',
+      is_active: false,
+    };
 
-  if (fields.PrimaryInterestTalentIds != null) {
-    row.primary_interest_talent_ids = String(fields.PrimaryInterestTalentIds);
-  }
-  if (fields.SourceTalentId != null) {
-    row.source_talent_id = String(fields.SourceTalentId);
-  }
+    if (fields.PrimaryInterestTalentIds != null) {
+      row.primary_interest_talent_ids = String(fields.PrimaryInterestTalentIds);
+    }
+    if (fields.SourceTalentId != null) {
+      row.source_talent_id = String(fields.SourceTalentId);
+    }
 
-  const { data, error } = await sb.from('briefs').insert(row).select('id').single();
-  if (error) {
-    return { success: false, error: new Error(error.message) };
+    const { data, error } = await sb.from('briefs').insert(row).select('id').single();
+    if (error) {
+      return { success: false, error: new Error(error.message) };
+    }
+    const rec = data as { id?: string };
+    if (!rec?.id) {
+      return { success: false, error: new Error('Supabase returned no brief id') };
+    }
+    return { success: true, data: { recordId: rec.id } };
+  } catch (e) {
+    const err = e instanceof Error ? e : new Error(String(e));
+    return { success: false, error: err };
   }
-  const rec = data as { id?: string };
-  if (!rec?.id) {
-    return { success: false, error: new Error('Supabase returned no brief id') };
-  }
-  return { success: true, data: { recordId: rec.id } };
 }
 
 export async function listRecentBriefsForAudit(pageSize: number): Promise<Result<BriefAuditRow[], Error>> {

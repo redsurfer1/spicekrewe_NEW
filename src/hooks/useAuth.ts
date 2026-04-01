@@ -28,6 +28,29 @@ interface UseAuthReturn {
   signOut: () => Promise<void>;
 }
 
+type AuthEvent =
+  | 'login'
+  | 'logout'
+  | 'login_failed'
+  | 'password_reset'
+  | 'admin_sk_verify_toggle'
+  | 'admin_trd_retry';
+
+function logAuthEvent(
+  event: AuthEvent,
+  userId?: string,
+  email?: string,
+  metadata?: Record<string, unknown>,
+): void {
+  void fetch('/api/auth-events', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ event, userId, email, metadata }),
+  }).catch(() => {
+    // Non-blocking: ignore failures.
+  });
+}
+
 export function useAuth(): UseAuthReturn {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -114,6 +137,9 @@ export function useAuth(): UseAuthReturn {
     if (!supabase) return;
 
     try {
+      if (user) {
+        logAuthEvent('logout', user.id, user.email ?? undefined);
+      }
       await supabase.auth.signOut();
       setUser(null);
       setProfile(null);

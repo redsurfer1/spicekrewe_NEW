@@ -1,0 +1,29 @@
+name: Weekly Security Scan
+
+on:
+  schedule:
+    - cron: '0 9 * * 1' # Every Monday 9am UTC
+  workflow_dispatch:
+
+jobs:
+  dependency-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm ci
+      - name: Full dependency audit
+        run: npm audit --json > audit-report.json || true
+      - name: Upload audit report
+        uses: actions/upload-artifact@v4
+        with:
+          name: npm-audit-report-${{ github.run_id }}
+          path: audit-report.json
+          retention-days: 90
+      - name: Check for critical vulnerabilities
+        run: |
+          CRITICAL=$(cat audit-report.json | python3 -c "import json,sys; d=json.load(sys.stdin); print(d.get('metadata',{}).get('vulnerabilities',{}).get('critical', 0))")
+          if [ "$CRITICAL" -gt "0" ]; then
+            echo "CRITICAL vulnerabilities found: $CRITICAL"
+            exit 1
+          fi
+

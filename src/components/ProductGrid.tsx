@@ -23,7 +23,7 @@ export default function ProductGrid() {
         const module = await import('../data/products.json');
         const data = module.default as Product[];
         setProducts(Array.isArray(data) ? data : []);
-      } catch (err) {
+      } catch {
         setError('Failed to load products.');
         setProducts([]);
       } finally {
