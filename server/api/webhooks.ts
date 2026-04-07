@@ -2,6 +2,14 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import Stripe from 'stripe';
 import { handleCheckoutSessionCompleted } from '../lib/webhook-checkout-completed.js';
 import { sendOnboardingEmail1IfNeeded } from '../email/onboarding-sequence.js';
+import {
+  registerStripeWebhookFlows,
+  tryDispatchCheckoutSession,
+  tryDispatchPaymentIntent,
+} from '../lib/webhook-flow-setup.js';
+import { logSecurityIncident } from '../lib/securityIncidents.js';
+
+registerStripeWebhookFlows();
 
 function readRawBody(req: VercelRequest): Promise<Buffer> {
   return new Promise((resolve, reject) => {
@@ -41,36 +49,59 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
     event = stripe.webhooks.constructEvent(rawBody, sig, webhookSecret);
   } catch (e) {
     const msg = e instanceof Error ? e.message : 'Invalid webhook signature';
+    void logSecurityIncident({
+      incidentType: 'invalid_webhook_signature',
+      severity: 'high',
+      details: { message: msg },
+    });
     res.status(400).json({ error: msg });
     return;
   }
 
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object as Stripe.Checkout.Session;
-    const applied = await handleCheckoutSessionCompleted(session, event.id);
-    if (!applied.success) {
-      res.status(500).json({ error: applied.error.message });
+    try {
+      const dispatched = await tryDispatchCheckoutSession(session, event.id);
+      if (!dispatched) {
+        const applied = await handleCheckoutSessionCompleted(session, event.id);
+        if (!applied.success) {
+          res.status(500).json({ error: applied.error.message });
+          return;
+        }
+      }
+      // eslint-disable-next-line no-console
+      console.log(
+        JSON.stringify({
+          audit: true,
+          level: 'info',
+          event: 'stripe.checkout.session.completed',
+          stripeEventId: event.id,
+          briefId: session.client_reference_id ?? null,
+          paymentStatus: session.payment_status,
+          dispatchedByFlowRegistry: dispatched,
+        }),
+      );
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      res.status(500).json({ error: msg });
       return;
     }
-    // SOC2 audit trail — Stripe event id + brief id (no card data).
-    // eslint-disable-next-line no-console
-    console.log(
-      JSON.stringify({
-        audit: true,
-        level: 'info',
-        event: 'stripe.checkout.session.completed',
-        stripeEventId: event.id,
-        briefId: session.client_reference_id ?? null,
-        paymentStatus: session.payment_status,
-      }),
-    );
   }
 
   if (event.type === 'payment_intent.succeeded') {
     const pi = event.data.object as Stripe.PaymentIntent;
-    const briefId = typeof pi.metadata?.briefId === 'string' ? pi.metadata.briefId.trim() : '';
-    if (briefId) {
-      await sendOnboardingEmail1IfNeeded(briefId);
+    try {
+      const dispatched = await tryDispatchPaymentIntent(pi, event.id);
+      if (!dispatched) {
+        const briefId = typeof pi.metadata?.briefId === 'string' ? pi.metadata.briefId.trim() : '';
+        if (briefId) {
+          await sendOnboardingEmail1IfNeeded(briefId);
+        }
+      }
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      res.status(500).json({ error: msg });
+      return;
     }
   }
 

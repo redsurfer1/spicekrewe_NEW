@@ -6,7 +6,7 @@ type Props = {
 };
 
 /**
- * High-impact B2B strip for food brands and restaurant groups (Phase 3 conversion).
+ * High-impact B2B strip for teams and companies (Phase 3 conversion).
  */
 export default function B2BBanner({ talkEmail = DEFAULT_ENTERPRISE_EMAIL }: Props) {
   const mailto = `mailto:${encodeURIComponent(talkEmail)}?subject=${encodeURIComponent('Spice Krewe — Teams / retainer inquiry')}`;
@@ -23,7 +23,7 @@ export default function B2BBanner({ talkEmail = DEFAULT_ENTERPRISE_EMAIL }: Prop
           className="m-0 text-xs font-semibold uppercase tracking-[0.12em] text-sk-gold"
           style={{ color: 'var(--sk-gold)' }}
         >
-          For food brands + restaurants
+          For teams + restaurants
         </p>
         <h2
           id="sk-b2b-banner-heading"

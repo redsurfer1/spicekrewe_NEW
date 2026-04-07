@@ -15,7 +15,7 @@ export default function HireSuccess() {
   return (
     <div className="min-h-screen flex flex-col" style={{ background: 'var(--sk-body-bg)' }}>
       <SEO
-        title={paidFeatured ? 'Welcome to the Krewe | Spice Krewe' : 'Thank you | Spice Krewe'}
+        title={paidFeatured ? 'Welcome to the Krewe | SpiceKrewe' : "You're all set | SpiceKrewe"}
         path="/hire/success"
       />
       <Navbar />
@@ -97,8 +97,8 @@ export default function HireSuccess() {
               </>
             ) : (
               <>
-                Thank you for trusting Spice Krewe with your project. We&apos;re matching your brief with vetted
-                professionals and will be in touch soon.
+                Thank you for trusting SpiceKrewe with your event. We&apos;re matching your request with verified chefs
+                and trucks and will be in touch soon.
               </>
             )}
           </p>
@@ -157,7 +157,7 @@ export default function HireSuccess() {
                 border: '2px solid var(--sk-gold)',
               }}
             >
-              Return to marketplace
+              Browse chefs &amp; trucks
             </Link>
           </div>
 

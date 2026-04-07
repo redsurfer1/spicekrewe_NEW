@@ -2,11 +2,21 @@ import Stripe from 'stripe';
 import { z } from 'zod';
 import type { Result } from './result.js';
 
+export type CheckoutFlow =
+  | 'chef_booking'
+  | 'food_truck_booking'
+  | 'concierge_fee'
+  | 'subscription';
+
 const BodySchema = z.object({
   briefId: z.string().min(1, 'briefId is required'),
   amountUsd: z.number().finite().positive(),
   stripePublishableKey: z.string().optional(),
   metadata: z.record(z.string()).optional().default({}),
+  flow: z
+    .enum(['chef_booking', 'food_truck_booking', 'concierge_fee', 'subscription'])
+    .optional()
+    .default('chef_booking'),
 });
 
 const SUCCESS_URL = 'https://spicekrewe.com/hire/success?session_id={CHECKOUT_SESSION_ID}';
@@ -31,7 +41,8 @@ export async function createStripeCheckoutSession(body: CheckoutBody): Promise<R
 
   const stripe = new Stripe(secret);
 
-  const { briefId, amountUsd, metadata } = body;
+  const { briefId, amountUsd, metadata, flow } = body;
+  const flowValue: CheckoutFlow = flow ?? 'chef_booking';
   const unitAmountCents = Math.round(amountUsd * 100);
   if (unitAmountCents < 50) {
     return { success: false, error: new Error('amountUsd too small for Stripe (min $0.50)') };
@@ -42,6 +53,7 @@ export async function createStripeCheckoutSession(body: CheckoutBody): Promise<R
     briefId: briefId.trim(),
     /** Used by webhooks to confirm Featured matching checkout → Auto-Scoper TRD sync. */
     spiceKreweCheckout: 'featured_matching',
+    flow: flowValue,
   };
 
   try {
@@ -55,6 +67,7 @@ export async function createStripeCheckoutSession(body: CheckoutBody): Promise<R
         metadata: {
           briefId: briefId.trim(),
           spiceKreweCheckout: 'featured_matching',
+          flow: flowValue,
         },
       },
       line_items: [

@@ -37,8 +37,8 @@ export default function PrivacyPage() {
           <section>
             <h2 className="text-lg font-semibold text-sk-navy">What data we collect</h2>
             <p className="mt-2">
-              We only collect the data we need to operate the Spice Krewe marketplace and match you with the right
-              culinary talent. This includes:
+              We only collect the data we need to operate the SpiceKrewe booking platform and match you with the right
+              provider. This includes:
             </p>
             <ul className="mt-2 list-disc list-inside space-y-1">
               <li>

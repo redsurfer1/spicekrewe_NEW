@@ -2,6 +2,7 @@ import { Resend } from 'resend';
 import { ensureBookingForBrief } from '../lib/bookings.js';
 import { getBriefRecord, patchBriefRecord } from '../lib/supabase-brief.js';
 import { getSupabaseServiceRole } from '../lib/supabase.js';
+import { recordEmailSent, wasEmailAlreadySent } from '../lib/emailDedup.js';
 
 function getResend(): Resend | null {
   const key = process.env.RESEND_API_KEY?.trim();
@@ -72,6 +73,18 @@ export async function sendOnboardingSequence(bookingId: string): Promise<void> {
   const origin = appOrigin().replace(/\/$/, '');
   const successUrl = `${origin}/hire/success?session_id=confirmed&id=${encodeURIComponent(sbBookingId)}`;
 
+  const dedupKey = {
+    entityType: 'booking',
+    entityId: sbBookingId,
+    type: 'onboarding_confirmed',
+    recipient: clientEmail.toLowerCase(),
+  };
+  if (await wasEmailAlreadySent(dedupKey)) {
+    // eslint-disable-next-line no-console
+    console.info('[onboarding] duplicate send skipped (notification_log)', dedupKey);
+    return;
+  }
+
   await resend.emails.send({
     from: fromEmail(),
     to: clientEmail,
@@ -81,6 +94,8 @@ export async function sendOnboardingSequence(bookingId: string): Promise<void> {
 <p>We will match you with SK Verified talent shortly. If you need anything, reply to this email.</p>
 <p><a href="${successUrl}">View your booking summary</a></p>`,
   });
+
+  await recordEmailSent(dedupKey, { briefId, bookingId: sbBookingId });
 }
 
 /**
@@ -115,6 +130,16 @@ export async function sendReviewRequestEmail(bookingId: string): Promise<void> {
   const good = q('good');
   const bad = q('bad');
 
+  const dedupKey = {
+    entityType: 'booking',
+    entityId: bookingId.trim(),
+    type: 'review_request',
+    recipient: clientEmail.toLowerCase(),
+  };
+  if (await wasEmailAlreadySent(dedupKey)) {
+    return;
+  }
+
   await resend.emails.send({
     from: fromEmail(),
     to: clientEmail,
@@ -123,6 +148,8 @@ export async function sendReviewRequestEmail(bookingId: string): Promise<void> {
 <p>How was your Spice Krewe match?</p>
 <p><a href="${good}">Good match</a> · <a href="${bad}">Not a good match</a></p>`,
   });
+
+  await recordEmailSent(dedupKey, { briefId });
 }
 
 export async function sendOnboardingEmail1IfNeeded(briefId: string): Promise<void> {

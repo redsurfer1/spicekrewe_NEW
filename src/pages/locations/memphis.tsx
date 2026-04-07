@@ -7,11 +7,11 @@ import TalentCard from '../../components/TalentCard';
 import { fetchTalentDirectory } from '../../data/talent';
 import type { TalentRecord } from '../../types/talentRecord';
 
-const PAGE_TITLE = 'Private Chef Memphis & Culinary R&D Memphis | Spice Krewe';
+const PAGE_TITLE = 'Private Chef Memphis & event catering Memphis | Spice Krewe';
 const PAGE_DESCRIPTION =
-  'Hire SK Verified private chefs and culinary R&D professionals in Memphis. Memphis Flavor Index data-as-a-service for brands building in the Mid-South.';
+  'Hire SK Verified private chefs and event catering professionals in Memphis. Memphis Event Planning data-as-a-service for hosts building in the Mid-South.';
 
-/** Highlight professionals suited to private-chef and R&D intents for local landing copy. */
+/** Highlight professionals suited to private-chef and event intents for local landing copy. */
 function memphisHighlights(roster: TalentRecord[]): TalentRecord[] {
   const want = new Set(['Private Chef', 'Recipe Development', 'Food Styling', 'Menu Design']);
   const scored = roster
@@ -70,11 +70,11 @@ export default function MemphisLocationPage() {
             aria-labelledby="mfi-heading"
           >
             <h2 id="mfi-heading" className="mb-3 text-xl font-bold text-sk-navy">
-              Memphis Flavor Index (data-as-a-service)
+              Memphis Event Planning (data-as-a-service)
             </h2>
             <p className="mb-0 text-[15px] leading-relaxed text-sk-text-muted">
-              Our <strong className="text-sk-navy">Memphis Flavor Index</strong> layer packages anonymized, machine-readable
-              preference signals from Krewe tastings, pop-ups, and partner menus—so brands can stress-test concepts against
+              Our <strong className="text-sk-navy">Memphis Event Planning</strong> layer packages anonymized, machine-readable
+              preference signals from Krewe tastings, pop-ups, and partner menus—so hosts can stress-test concepts against
               real Mid-South palates before they commit to line extensions or LTOs. Pair index insights with an SK Verified
               brief to move from signal to scoped execution in one thread.
             </p>

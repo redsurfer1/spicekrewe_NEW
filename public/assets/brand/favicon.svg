@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="fav-title">
   <title id="fav-title">Spice Krewe</title>
   <rect width="64" height="64" rx="14" fill="#1a1a2e"/>
-  <text x="32" y="41" text-anchor="middle" font-family="'Montserrat', system-ui, sans-serif" font-size="22" font-weight="700" fill="#b99ee8">SK</text>
+  <text x="32" y="41" text-anchor="middle" font-family="'Barlow Condensed', system-ui, sans-serif" font-size="22" font-weight="700" fill="#b99ee8">SK</text>
 </svg>

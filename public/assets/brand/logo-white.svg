@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 32" width="200" height="32" role="img" aria-labelledby="title-white">
   <title id="title-white">Spice Krewe</title>
-  <text x="0" y="24" font-family="'Montserrat', system-ui, sans-serif" font-size="20" font-weight="600" letter-spacing="-0.02em" fill="#ffffff">Spice </text>
-  <text x="72" y="24" font-family="'Montserrat', system-ui, sans-serif" font-size="20" font-weight="600" letter-spacing="-0.02em" fill="#cbb8e8">Krewe</text>
+  <text x="0" y="24" font-family="'Barlow Condensed', system-ui, sans-serif" font-size="20" font-weight="600" letter-spacing="-0.02em" fill="#ffffff">Spice </text>
+  <text x="72" y="24" font-family="'Barlow Condensed', system-ui, sans-serif" font-size="20" font-weight="600" letter-spacing="-0.02em" fill="#cbb8e8">Krewe</text>
 </svg>

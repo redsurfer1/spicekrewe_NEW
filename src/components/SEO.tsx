@@ -1,8 +1,9 @@
 import { Helmet } from 'react-helmet-async';
 
-const DEFAULT_TITLE = 'Spice Krewe – Hire Vetted Culinary Professionals';
+/** Use explicit `title` per page, e.g. `SpiceKrewe — How it works | Memphis Private Chefs & Food Trucks`. */
+const DEFAULT_TITLE = 'SpiceKrewe | Memphis Private Chefs & Food Trucks';
 const DEFAULT_DESCRIPTION =
-  'Access on-demand culinary R&D and vetted professionals for food brands and restaurant groups.';
+  'Book a private chef or food truck in Memphis with SpiceKrewe. AI concierge, verified providers, secure payment.';
 export const DEFAULT_OG_IMAGE = 'https://spicekrewe.com/og-image.png';
 const DEFAULT_IMAGE = DEFAULT_OG_IMAGE;
 /** Production origin — no trailing slash (homepage canonical is this exact string). */

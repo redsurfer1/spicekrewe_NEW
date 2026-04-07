@@ -8,7 +8,7 @@ import { NEW_ORLEANS_VOICE_SEARCH_FAQ_ITEMS } from '../../lib/seo/newOrleansVoic
 
 const TITLE = 'Cajun & Creole private chef hire New Orleans | Spice Krewe';
 const DESCRIPTION =
-  'Cajun and Creole private chef hire New Orleans and NOLA food product development—SK Verified talent in New Orleans, Louisiana. Match in 48 hours, no agency fees.';
+  'Cajun and Creole private chef hire New Orleans and NOLA food event planning—SK Verified talent in New Orleans, Louisiana. Match in 48 hours, no agency fees.';
 const PATH = '/hire/new-orleans';
 
 const rafaelResult = getTalentById('rafael-cruz', TALENT_FALLBACK);
@@ -37,9 +37,9 @@ export default function NewOrleansHirePage() {
             Hire vetted culinary talent in New Orleans, Louisiana
           </h1>
           <p className="mx-auto mb-8 max-w-2xl text-lg text-sk-text-muted leading-relaxed">
-            Cajun and Creole private chef hire New Orleans, NOLA food product development, and Gulf South brand
-            shoots—SK Verified professionals across Greater New Orleans, serving New Orleans, Louisiana and the Gulf
-            Coast.
+            Cajun and Creole private chef and food truck bookings for second line celebrations, corporate events, and
+            Mardi Gras season dining—SK Verified professionals across Greater New Orleans, serving New Orleans,
+            Louisiana and the Gulf Coast.
           </p>
           <Link
             to={`/talent?location=${encodeURIComponent('New Orleans')}`}
@@ -63,14 +63,14 @@ export default function NewOrleansHirePage() {
                   {rafael.role}
                 </p>
                 <p className="mt-2 text-sm text-sk-text-muted leading-relaxed">{rafael.specialty}</p>
-                <p className="mt-3 text-sm font-semibold text-sk-navy">{rafael.rate} · SK Verified · Lead Gulf stylist</p>
+                <p className="mt-3 text-sm font-semibold text-sk-navy">{rafael.rate} · SK Verified · Gulf South food truck</p>
                 <div className="mt-4 flex flex-col gap-2">
                   <div className="flex flex-wrap gap-3">
                     <Link
                       to="/talent/rafael-cruz"
                       className="text-sm font-semibold text-spice-purple no-underline hover:underline"
                     >
-                      Rafael Cruz — Gulf South food stylist
+                      Rafael Cruz — Gulf South food truck
                     </Link>
                     <Link
                       to={`/hire?talentId=${encodeURIComponent(rafael.id)}`}
@@ -106,10 +106,11 @@ export default function NewOrleansHirePage() {
         <section className="mx-auto mt-14 max-w-3xl">
           <h2 className="mb-4 text-2xl font-bold text-sk-navy">Popular New Orleans hire requests</h2>
           <ul className="m-0 list-disc space-y-2 pl-5 text-sk-text-muted">
-            <li>Cajun and Creole private chef hire New Orleans for home dinners</li>
-            <li>NOLA food product development for retail and CPG launches</li>
-            <li>Food stylist for hospitality and spirits brand shoots</li>
-            <li>Catering chef for festivals and corporate events</li>
+            <li>Private chef for a Creole dinner party in the Garden District</li>
+            <li>Food truck for a corporate event in the Central Business District</li>
+            <li>Private chef specializing in Cajun and Creole cuisine</li>
+            <li>Food truck for a second line celebration or outdoor event</li>
+            <li>Private chef for Mardi Gras season private dining</li>
           </ul>
         </section>
 
@@ -117,11 +118,11 @@ export default function NewOrleansHirePage() {
           <h2 className="mb-4 text-2xl font-bold text-sk-navy">Why SK in New Orleans</h2>
           <ul className="m-0 list-none space-y-3 p-0 text-sk-text-muted">
             <li>
-              • We serve hosts and brands across <strong className="text-sk-navy">Louisiana and the Gulf Coast</strong>{' '}
+              • We serve hosts and hosts across <strong className="text-sk-navy">Louisiana and the Gulf Coast</strong>{' '}
               with transparent briefs—no agency markup on the introduction.
             </li>
-            <li>• Lead specialist Rafael Cruz lists $150/hr for SK Verified editorial and e-commerce styling.</li>
-            <li>• On-demand culinary R&D for NOLA food product development without long retainers.</li>
+            <li>• Lead specialist Rafael Cruz lists $150/hr for SK Verified food truck and on-site event service.</li>
+            <li>• On-demand private chef and food truck catering for New Orleans events without long retainers.</li>
             <li>
               • Read{' '}
               <Link
@@ -156,7 +157,7 @@ export default function NewOrleansHirePage() {
           style={{ borderColor: 'var(--sk-gold)', background: 'var(--sk-gold-light)' }}
         >
           <p className="m-0 text-sm font-semibold leading-relaxed" style={{ color: 'var(--sk-navy)' }}>
-            The New Orleans Flavor Index — our proprietary taste intelligence for the Gulf South — is coming soon.
+            The New Orleans Event Planning — our proprietary taste intelligence for the Gulf South — is coming soon.
             Enterprise clients: contact us for early access.
           </p>
         </aside>

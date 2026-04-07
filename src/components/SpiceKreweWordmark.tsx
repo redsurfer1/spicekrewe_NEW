@@ -1,5 +1,6 @@
 /**
- * Premium wordmark: Montserrat (loaded globally) + brand fills — no raster, no legacy stock icons.
+ * Premium wordmark: Barlow Condensed (loaded globally) + brand fills — no raster, no legacy stock icons.
+ * Font audit 2026-04-02: Montserrat → Barlow Condensed for brand alignment (both OFL).
  */
 export default function SpiceKreweWordmark({ className = '' }: { className?: string }) {
   return (
@@ -14,7 +15,7 @@ export default function SpiceKreweWordmark({ className = '' }: { className?: str
       <text
         x={0}
         y={21}
-        fontFamily="'Montserrat', system-ui, sans-serif"
+        fontFamily="'Barlow Condensed', system-ui, sans-serif"
         fontSize={18}
         fontWeight={600}
         letterSpacing="-0.02em"
@@ -25,7 +26,7 @@ export default function SpiceKreweWordmark({ className = '' }: { className?: str
       <text
         x={58}
         y={21}
-        fontFamily="'Montserrat', system-ui, sans-serif"
+        fontFamily="'Barlow Condensed', system-ui, sans-serif"
         fontSize={18}
         fontWeight={600}
         letterSpacing="-0.02em"

@@ -6,9 +6,9 @@ import { getTalentById, TALENT_FALLBACK } from '../../data/talent';
 import { buildNashvilleHirePageStructuredData } from '../../lib/seo/nashvilleLocalBusinessJsonLd';
 import { NASHVILLE_VOICE_SEARCH_FAQ_ITEMS } from '../../lib/seo/nashvilleVoiceFaq';
 
-const TITLE = 'Vetted chefs & food stylists in Nashville, TN | Spice Krewe';
+const TITLE = 'Vetted chefs & food trucks in Nashville, TN | Spice Krewe';
 const DESCRIPTION =
-  'Private chef Nashville hire and Nashville food stylist for brand shoot—SK Verified talent in Nashville, Tennessee. Post a brief, get matched in 48 hours. No agency fees.';
+  'Book a private chef or food truck in Nashville, TN. SpiceKrewe connects you with verified culinary professionals for private events, corporate gatherings, and celebrations.';
 const PATH = '/hire/nashville';
 
 const marcusResult = getTalentById('marcus-johnson', TALENT_FALLBACK);
@@ -72,8 +72,8 @@ export default function NashvilleHirePage() {
             Hire vetted culinary talent in Nashville, Tennessee
           </h1>
           <p className="mx-auto mb-8 max-w-2xl text-lg text-sk-text-muted leading-relaxed">
-            Private chef Nashville hire and Nashville food stylist for brand shoot requests—SK Verified professionals
-            across the Greater Nashville area, serving Nashville, Tennessee and Middle Tennessee.
+            Private chef and food truck bookings for Music Row events, bachelorette weekends, and corporate gatherings—SK
+            Verified professionals across the Greater Nashville area, serving Nashville, Tennessee and Middle Tennessee.
           </p>
           <Link
             to="/talent?location=Nashville"
@@ -113,10 +113,11 @@ export default function NashvilleHirePage() {
         <section className="mx-auto mt-14 max-w-3xl">
           <h2 className="mb-4 text-2xl font-bold text-sk-navy">Popular Nashville hire requests</h2>
           <ul className="m-0 list-disc space-y-2 pl-5 text-sk-text-muted">
-            <li>Private chef for downtown events and honky-tonk hospitality</li>
-            <li>Recipe developer for hot-chicken and beverage CPG lines</li>
-            <li>Food stylist for Nashville food stylist for brand shoot days</li>
-            <li>Culinary consultant for hotel and music-venue menus</li>
+            <li>Private chef for a bachelorette dinner in East Nashville</li>
+            <li>Food truck for a corporate event near Music Row</li>
+            <li>Private chef specializing in hot chicken and Southern cuisine</li>
+            <li>Food truck for an outdoor wedding reception in Franklin</li>
+            <li>Private chef for a team dinner during CMA Fest week</li>
           </ul>
         </section>
 
@@ -124,11 +125,11 @@ export default function NashvilleHirePage() {
           <h2 className="mb-4 text-2xl font-bold text-sk-navy">Why SK in Nashville</h2>
           <ul className="m-0 list-none space-y-3 p-0 text-sk-text-muted">
             <li>
-              • We support brands and hosts across <strong className="text-sk-navy">Tennessee and Kentucky</strong> with
+              • We support hosts and hosts across <strong className="text-sk-navy">Tennessee and Kentucky</strong> with
               the same transparent brief flow—no agency markup on the request itself.
             </li>
             <li>• SK Verified anchors include Marcus Johnson at $175/hr and Aisha Thompson at $165/hr for Nashville-market bookings.</li>
-            <li>• On-demand culinary R&D without retainers for growing CPG teams.</li>
+            <li>• On-demand event catering without retainers for corporate teams and private celebrations.</li>
             <li>
               • Planning a longer read? Open{' '}
               <Link
@@ -163,7 +164,7 @@ export default function NashvilleHirePage() {
           style={{ borderColor: 'var(--sk-gold)', background: 'var(--sk-gold-light)' }}
         >
           <p className="m-0 text-sm font-semibold leading-relaxed" style={{ color: 'var(--sk-navy)' }}>
-            The Nashville Flavor Index — our proprietary taste intelligence for Middle Tennessee — is coming soon.
+            The Nashville Event Planning — our proprietary taste intelligence for Middle Tennessee — is coming soon.
             Enterprise clients: contact us for early access.
           </p>
         </aside>

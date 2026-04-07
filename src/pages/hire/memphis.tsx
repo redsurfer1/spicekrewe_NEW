@@ -3,49 +3,64 @@ import Navbar from '../../components/Navigation';
 import Footer from '../../components/Footer';
 import SEO, { DEFAULT_OG_IMAGE } from '../../components/SEO';
 import { getTalentById, TALENT_FALLBACK } from '../../data/talent';
-import { buildMemphisHirePageStructuredData } from '../../lib/seo/memphisLocalBusinessJsonLd';
-import { MEMPHIS_VOICE_SEARCH_FAQ_ITEMS } from '../../lib/seo/memphisVoiceFaq';
+import { buildCityHirePageStructuredData } from '../../lib/seo/cityLocalBusinessJsonLd';
+import { buildCityVoiceFaqItems, memphisProviderMix } from '../../lib/seo/cityVoiceFaq';
+import { useCity } from '../../lib/city/useCity';
 
-const TITLE = 'Vetted private chefs & food stylists in Memphis, TN | Spice Krewe';
-const DESCRIPTION =
-  'Find and hire SK Verified private chefs, food stylists, and culinary consultants in Memphis, Tennessee. Post a brief, get matched in 48 hours. No agency fees.';
 const PATH = '/hire/memphis';
 
 const rafaelResult = getTalentById('rafael-cruz', TALENT_FALLBACK);
 const rafael = rafaelResult.success ? rafaelResult.data : null;
 
 export default function MemphisHirePage() {
-  const structuredData = buildMemphisHirePageStructuredData(MEMPHIS_VOICE_SEARCH_FAQ_ITEMS);
+  const { cityDisplayName, cityStateCode } = useCity();
+
+  const title = `Vetted private chefs & food trucks in ${cityDisplayName}, ${cityStateCode} | Spice Krewe`;
+  const description = `Book a private chef or food truck in ${cityDisplayName}, ${cityStateCode}. SpiceKrewe connects you with verified culinary professionals for private events, corporate gatherings, and celebrations.`;
+
+  const faq = buildCityVoiceFaqItems(cityDisplayName);
+  const structuredData = buildCityHirePageStructuredData(
+    {
+      cityName: cityDisplayName,
+      regionCode: cityStateCode,
+      country: 'US',
+      hirePath: PATH,
+      description: `SpiceKrewe — private chef and food truck booking platform in ${cityDisplayName}. AI-powered concierge. Verified providers.`,
+      providerTypes: memphisProviderMix(),
+      mapUrl: `https://www.google.com/maps/place/${encodeURIComponent(`${cityDisplayName}, ${cityStateCode}`)}`,
+    },
+    faq,
+  );
 
   return (
     <div className="flex min-h-screen flex-col bg-sk-body-bg">
       <SEO
-        title={TITLE}
-        description={DESCRIPTION}
+        title={title}
+        description={description}
         path={PATH}
-        ogTitle={TITLE}
-        ogDescription={DESCRIPTION}
+        ogTitle={title}
+        ogDescription={description}
         image={DEFAULT_OG_IMAGE}
         structuredData={structuredData}
-        geoRegion="US-TN"
-        geoPlacename="Memphis, Tennessee"
+        geoRegion={cityStateCode.length === 2 ? `US-${cityStateCode}` : 'US-TN'}
+        geoPlacename={`${cityDisplayName}, ${cityStateCode}`}
       />
       <Navbar />
       <main className="flex-1 px-4 py-10 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-4xl text-center">
           <h1 className="mb-4 text-3xl font-bold leading-tight text-sk-navy sm:text-5xl">
-            Hire vetted culinary talent in Memphis, Tennessee
+            Book a private chef or food truck in {cityDisplayName}, {cityStateCode}
           </h1>
           <p className="mx-auto mb-8 max-w-2xl text-lg text-sk-text-muted leading-relaxed">
-            Private chefs, recipe developers, and food stylists for hosts and brands across the Greater Memphis area — SK
-            Verified professionals serving Memphis, Tennessee and the Mid-South.
+            The best way to book verified private chefs and food trucks for events in {cityDisplayName} — from intimate
+            dinners to corporate and outdoor gatherings.
           </p>
           <Link
-            to="/talent?location=Memphis"
+            to={`/talent?location=${encodeURIComponent(cityDisplayName)}`}
             className="inline-flex min-h-[44px] items-center justify-center rounded-sk-md px-8 py-3 text-sm font-bold text-white no-underline shadow-md hover:opacity-95"
             style={{ background: 'var(--sk-purple)' }}
           >
-            Browse Memphis talent
+            Browse {cityDisplayName} talent
           </Link>
         </div>
 
@@ -69,7 +84,7 @@ export default function MemphisHirePage() {
                       to="/talent/rafael-cruz"
                       className="text-sm font-semibold text-spice-purple no-underline hover:underline"
                     >
-                      Rafael Cruz — Memphis food stylist
+                      Rafael Cruz — Memphis food truck
                     </Link>
                     <Link
                       to={`/hire?talentId=${encodeURIComponent(rafael.id)}`}
@@ -105,10 +120,11 @@ export default function MemphisHirePage() {
         <section className="mx-auto mt-14 max-w-3xl">
           <h2 className="mb-4 text-2xl font-bold text-sk-navy">Popular Memphis hire requests</h2>
           <ul className="m-0 list-disc space-y-2 pl-5 text-sk-text-muted">
-            <li>Private chef for dinner party</li>
-            <li>Creole &amp; Cajun cuisine specialist</li>
-            <li>Food stylist for local restaurant photography</li>
-            <li>Catering chef for corporate events</li>
+            <li>Private chef for a Midtown dinner party</li>
+            <li>Food truck for a corporate event in the medical district</li>
+            <li>Private chef for a holiday celebration in East Memphis</li>
+            <li>Food truck for an outdoor event at Shelby Farms</li>
+            <li>Private chef specializing in Southern and BBQ cuisine</li>
           </ul>
         </section>
 
@@ -116,7 +132,7 @@ export default function MemphisHirePage() {
           <h2 className="mb-4 text-2xl font-bold text-sk-navy">Why SK in Memphis</h2>
           <ul className="m-0 list-none space-y-3 p-0 text-sk-text-muted">
             <li>
-              • We serve buyers and brands across <strong className="text-sk-navy">Tennessee and Mississippi</strong>{' '}
+              • We serve buyers and hosts across <strong className="text-sk-navy">Tennessee and Mississippi</strong>{' '}
               with the same transparent brief flow—no agency markup on the request itself.
             </li>
             <li>• Local professionals with vetted credentials—not anonymous gig listings.</li>
@@ -144,7 +160,7 @@ export default function MemphisHirePage() {
           </h2>
           <div className="rounded-sk-lg border border-sk-card-border bg-white p-6 shadow-sm sm:p-8">
             <dl className="m-0 space-y-6 p-0">
-              {MEMPHIS_VOICE_SEARCH_FAQ_ITEMS.map((item) => (
+              {faq.map((item) => (
                 <div key={item.question}>
                   <dt className="m-0 text-sm font-bold text-sk-navy">{item.question}</dt>
                   <dd className="m-0 mt-2 text-sm leading-relaxed text-sk-text-muted">{item.answer}</dd>
@@ -159,7 +175,7 @@ export default function MemphisHirePage() {
           style={{ borderColor: 'var(--sk-gold)', background: 'var(--sk-gold-light)' }}
         >
           <p className="m-0 text-sm font-semibold leading-relaxed" style={{ color: 'var(--sk-navy)' }}>
-            The Memphis Flavor Index — our proprietary taste intelligence for the Mid-South market — is coming soon.
+            The Memphis Event Planning — our proprietary taste intelligence for the Mid-South market — is coming soon.
             Enterprise clients:{' '}
             <Link
               to="/contact?source=flavor-index-early-access#message"

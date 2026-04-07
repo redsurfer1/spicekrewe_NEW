@@ -3,11 +3,13 @@ export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     extend: {
+      /* Font audit 2026-04-02: replaced Montserrat (OFL — kept for reference) with Barlow Condensed (OFL — SpiceKrewe brand display). */
       fontFamily: {
-        sans: ['Montserrat', 'sans-serif'],
+        sans: ['Barlow Condensed', 'system-ui', 'sans-serif'],
+        display: ['Barlow Condensed', 'system-ui', 'sans-serif'],
       },
       colors: {
-        /** Spice Krewe brand palette (hex — matches UI audit Fix 5) */
+        /** Spice Krewe brand palette — primary #4d2f91, secondary via --sk-blue (#3275bd confirmed) */
         sk: {
           navy: '#1a1a2e',
           purple: '#4d2f91',

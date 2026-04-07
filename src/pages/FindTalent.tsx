@@ -3,17 +3,19 @@ import { useSearchParams } from 'react-router-dom';
 import { Search } from 'lucide-react';
 import Navbar from '../components/Navigation';
 import Footer from '../components/Footer';
-import B2BBanner from '../components/B2BBanner';
 import SEO from '../components/SEO';
 import TalentCard from '../components/TalentCard';
 import type { TalentRecord } from '../types/talentRecord';
 import {
-  CULINARY_CATEGORIES,
+  NARROW_BOOKING_CATEGORIES,
   fetchTalentDirectory,
+  filterRosterByCitySlug,
   MEMPHIS_AREA_TALENT_IDS,
   NASHVILLE_AREA_TALENT_IDS,
   NEW_ORLEANS_AREA_TALENT_IDS,
 } from '../data/talent';
+import { rankTalentResults, type ProviderTypeFilter } from '../lib/search/rankTalent';
+import { useCity } from '../context/CityContext';
 
 const SEARCH_DEBOUNCE_MS = 300;
 
@@ -41,9 +43,9 @@ type FilterPanelProps = {
 function TalentFilterPanel({ selectedCategories, toggleCategory, onClearAll, hasActiveFilters }: FilterPanelProps) {
   return (
     <>
-      <h2 className="mb-3 text-xs font-bold uppercase tracking-wider text-sk-gold">Culinary categories</h2>
+      <h2 className="mb-3 text-xs font-bold uppercase tracking-wider text-sk-gold">Chef &amp; truck tags</h2>
       <ul className="m-0 flex list-none flex-col gap-1.5 p-0">
-        {CULINARY_CATEGORIES.map((cat) => {
+        {NARROW_BOOKING_CATEGORIES.map((cat) => {
           const checked = selectedCategories.includes(cat);
           return (
             <li key={cat}>
@@ -125,8 +127,14 @@ function EmptyTalentState({ onClearAll }: { onClearAll: () => void }) {
 
 export default function FindTalent() {
   const [searchParams, setSearchParams] = useSearchParams();
+  const { citySlug, cityDisplayName } = useCity();
   const verifiedOnly = searchParams.get('verified') === 'true';
   const locationFilter = searchParams.get('location');
+  const rawType = searchParams.get('type');
+  const typeFromUrl = rawType === 'private_chef' || rawType === 'food_truck' ? rawType : null;
+  const providerTypeRaw = typeFromUrl ?? searchParams.get('providerType');
+  const providerType: ProviderTypeFilter =
+    providerTypeRaw === 'food_truck' || providerTypeRaw === 'private_chef' ? providerTypeRaw : 'all';
   const memphisOnly = locationFilter === 'Memphis';
   const nashvilleOnly = locationFilter === 'Nashville';
   const newOrleansOnly = locationFilter === 'New Orleans';
@@ -143,14 +151,14 @@ export default function FindTalent() {
     setDirectoryLoading(true);
     fetchTalentDirectory().then((list) => {
       if (!cancelled) {
-        setRoster(list);
+        setRoster(filterRosterByCitySlug(list, citySlug));
         setDirectoryLoading(false);
       }
     });
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [citySlug]);
 
   useEffect(() => {
     const t = window.setTimeout(() => setDebouncedSearch(searchInput), SEARCH_DEBOUNCE_MS);
@@ -171,9 +179,26 @@ export default function FindTalent() {
       const next = new URLSearchParams(prev);
       next.delete('verified');
       next.delete('location');
+      next.delete('type');
+      next.delete('providerType');
       return next;
     });
   }, [setSearchParams]);
+
+  const setProviderTypeInUrl = useCallback(
+    (nextType: ProviderTypeFilter) => {
+      setSearchParams((prev) => {
+        const next = new URLSearchParams(prev);
+        if (nextType === 'all') next.delete('type');
+        else next.set('type', nextType);
+        next.delete('providerType');
+        return next;
+      });
+    },
+    [setSearchParams],
+  );
+
+  const typeFilterActive = providerType !== 'all';
 
   const hasActiveFilters = useMemo(
     () =>
@@ -182,8 +207,17 @@ export default function FindTalent() {
       verifiedOnly ||
       memphisOnly ||
       nashvilleOnly ||
+      newOrleansOnly ||
+      typeFilterActive,
+    [
+      selectedCategories,
+      debouncedSearch,
+      verifiedOnly,
+      memphisOnly,
+      nashvilleOnly,
       newOrleansOnly,
-    [selectedCategories, debouncedSearch, verifiedOnly, memphisOnly, nashvilleOnly, newOrleansOnly],
+      typeFilterActive,
+    ],
   );
 
   const activeFilterCount = useMemo(
@@ -191,30 +225,61 @@ export default function FindTalent() {
       selectedCategories.length +
       (debouncedSearch.trim() ? 1 : 0) +
       (verifiedOnly ? 1 : 0) +
-      (memphisOnly || nashvilleOnly || newOrleansOnly ? 1 : 0),
-    [selectedCategories, debouncedSearch, verifiedOnly, memphisOnly, nashvilleOnly, newOrleansOnly],
+      (memphisOnly || nashvilleOnly || newOrleansOnly ? 1 : 0) +
+      (typeFilterActive ? 1 : 0),
+    [
+      selectedCategories,
+      debouncedSearch,
+      verifiedOnly,
+      memphisOnly,
+      nashvilleOnly,
+      newOrleansOnly,
+      typeFilterActive,
+    ],
   );
 
   const filtered = useMemo(() => {
-    return roster.filter((row) => {
+    const base = roster.filter((row) => {
       if (verifiedOnly && !row.verified) return false;
       if (memphisOnly && !MEMPHIS_AREA_TALENT_IDS.includes(row.id)) return false;
       if (nashvilleOnly && !NASHVILLE_AREA_TALENT_IDS.includes(row.id)) return false;
       if (newOrleansOnly && !NEW_ORLEANS_AREA_TALENT_IDS.includes(row.id)) return false;
       return matchesCategoryFilters(selectedCategories, row) && matchesSearch(debouncedSearch, row);
     });
-  }, [roster, debouncedSearch, selectedCategories, verifiedOnly, memphisOnly, nashvilleOnly, newOrleansOnly]);
+    return rankTalentResults(base, providerType);
+  }, [
+    roster,
+    debouncedSearch,
+    selectedCategories,
+    verifiedOnly,
+    memphisOnly,
+    nashvilleOnly,
+    newOrleansOnly,
+    providerType,
+  ]);
 
   const searchPending = searchInput !== debouncedSearch;
+
+  const pageHeading =
+    providerType === 'private_chef'
+      ? `${cityDisplayName} Private Chefs`
+      : providerType === 'food_truck'
+        ? `${cityDisplayName} Food Trucks`
+        : `${cityDisplayName} Chefs & Food Trucks`;
+
+  const filterBtn = (active: boolean) =>
+    `min-h-[44px] rounded-sk-md px-4 py-2 text-sm font-bold transition-colors border-0 cursor-pointer ${
+      active ? 'text-white' : 'border border-sk-card-border bg-white text-sk-navy'
+    }`;
 
   return (
     <div className="flex min-h-screen flex-col bg-sk-body-bg">
       <SEO
-        title="Find culinary talent – Spice Krewe"
-        description="Source vetted culinary R&D professionals, recipe developers, and flavor consultants."
+        title={`${pageHeading} | SpiceKrewe`}
+        description="Book verified private chefs and food trucks in Memphis with SpiceKrewe. AI concierge, secure payment."
         path="/talent"
-        ogTitle="Find culinary talent – Spice Krewe"
-        ogDescription="Source vetted culinary R&D professionals, recipe developers, and flavor consultants."
+        ogTitle={`${pageHeading} | SpiceKrewe`}
+        ogDescription="Book verified private chefs and food trucks in Memphis with SpiceKrewe. AI concierge, secure payment."
       />
       <Navbar />
 
@@ -253,15 +318,55 @@ export default function FindTalent() {
 
         <main className="min-w-0 flex-1 overflow-hidden rounded-xl border border-sk-card-border bg-sk-surface w-full">
           <div className="border-b border-sk-card-border px-4 pb-5 pt-6 sm:px-6 sm:pt-7">
-            <h1 className="m-0 mb-2 text-[clamp(1.35rem,4vw,1.75rem)] font-bold tracking-tight text-sk-navy">
-              Find culinary talent
+            <h1
+              className="m-0 mb-2 text-[clamp(1.35rem,4vw,1.75rem)] font-bold tracking-tight text-sk-navy"
+              style={{ fontFamily: '"Barlow Condensed", system-ui, sans-serif' }}
+            >
+              {pageHeading}
             </h1>
             <p className="m-0 mb-5 max-w-[560px] text-[15px] leading-snug text-sk-text-subtle">
-              Search vetted chefs, developers, stylists, and consultants. Use categories to narrow the directory.
+              Verified {cityDisplayName}-area private chefs and food trucks for dinners, celebrations, and corporate or
+              outdoor events.
             </p>
+            <div className="mb-5 flex flex-wrap gap-2" role="group" aria-label="Filter by provider type">
+              <button
+                type="button"
+                className={filterBtn(providerType === 'all')}
+                style={providerType === 'all' ? { backgroundColor: '#4d2f91' } : undefined}
+                onClick={() => setProviderTypeInUrl('all')}
+              >
+                All
+              </button>
+              <button
+                type="button"
+                className={filterBtn(providerType === 'private_chef')}
+                style={providerType === 'private_chef' ? { backgroundColor: '#4d2f91' } : undefined}
+                onClick={() => setProviderTypeInUrl('private_chef')}
+              >
+                Private Chefs
+              </button>
+              <button
+                type="button"
+                className={filterBtn(providerType === 'food_truck')}
+                style={providerType === 'food_truck' ? { backgroundColor: '#4d2f91' } : undefined}
+                onClick={() => setProviderTypeInUrl('food_truck')}
+              >
+                Food Trucks
+              </button>
+            </div>
             {verifiedOnly ? (
               <p className="m-0 mb-3 rounded-sk-md border border-sk-gold/40 bg-[#fef8e7] px-3 py-2 text-[13px] font-medium text-[#8a6200]">
                 Showing SK Verified professionals only.
+              </p>
+            ) : null}
+            {providerType === 'private_chef' ? (
+              <p className="m-0 mb-3 rounded-sk-md border border-sk-card-border bg-sk-purple-light/10 px-3 py-2 text-[13px] font-medium text-sk-navy">
+                Showing private chefs (intimate events, 1–30 guests).
+              </p>
+            ) : null}
+            {providerType === 'food_truck' ? (
+              <p className="m-0 mb-3 rounded-sk-md border border-sk-card-border bg-sk-purple-light/10 px-3 py-2 text-[13px] font-medium text-sk-navy">
+                Showing food trucks (gatherings &amp; outdoor events, 20–200+ guests).
               </p>
             ) : null}
             {memphisOnly ? (
@@ -303,7 +408,7 @@ export default function FindTalent() {
             ) : null}
 
             <div className="mt-4 flex flex-wrap items-center gap-2">
-              {CULINARY_CATEGORIES.map((cat) => {
+              {NARROW_BOOKING_CATEGORIES.map((cat) => {
                 const active = selectedCategories.includes(cat);
                 return (
                   <button
@@ -358,7 +463,6 @@ export default function FindTalent() {
         </main>
       </div>
 
-      <B2BBanner />
       <Footer />
     </div>
   );

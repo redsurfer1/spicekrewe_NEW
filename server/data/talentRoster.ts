@@ -48,4 +48,12 @@ export const PROFESSIONAL_ROSTER: ServerTalentRecord[] = [
     tags: ['Flavor Consulting', 'Menu Design', 'Recipe Development'],
     bio: 'Dana blends sensory science with street-level intuition—helping teams articulate “why this works” and ship flavors that resonate in multiple markets.',
   },
+  {
+    id: 'mid-south-smoke-truck',
+    name: 'Mid-South Smoke & Pickle',
+    role: 'Food Truck — BBQ & Southern sides',
+    specialty: 'Corporate lunches, festivals, and private lot service (Memphis / Mid-South)',
+    tags: ['Food Truck', 'Private Chef'],
+    bio: 'Wood-fired BBQ, vegetarian sides, and fast line service for 50–500 guests. Health permit and commissary on file.',
+  },
 ];

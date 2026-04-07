@@ -1,21 +1,16 @@
-import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { marked } from 'marked';
 import Navbar from '../../components/Navigation';
 import Footer from '../../components/Footer';
 import SEO from '../../components/SEO';
-import pricingSource from '../../content/guides/pricing-2025.mdx?raw';
 
-const PAGE_TITLE = '2025 Culinary Service Rates | Spice Krewe';
+const PAGE_TITLE = 'How much does a private chef or food truck cost in Memphis? | SpiceKrewe';
 const PAGE_DESCRIPTION =
-  'Transparent SK Verified rate bands for private chefs, recipe developers, and food stylists—contrasted with typical unvetted marketplace pricing.';
+  'Typical private chef and food truck pricing in Memphis, plus how SpiceKrewe’s 5% booking fee works.';
+
+const fontBarlow = '"Barlow Condensed", system-ui, sans-serif';
+const primary = '#4d2f91';
 
 export default function PricingGuide2025Page() {
-  const html = useMemo(
-    () => marked.parse(pricingSource, { async: false, gfm: true }) as string,
-    [],
-  );
-
   return (
     <div className="min-h-screen bg-sk-body-bg flex flex-col">
       <SEO
@@ -27,37 +22,78 @@ export default function PricingGuide2025Page() {
       />
       <Navbar />
       <main className="flex-1 px-4 py-10 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-3xl">
+        <div className="mx-auto max-w-3xl rounded-sk-lg border border-sk-card-border bg-white p-6 shadow-sm sm:p-10">
           <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-sk-gold">Guides</p>
-          <article
-            className="rounded-sk-lg border border-sk-card-border bg-white p-6 shadow-sm sm:p-10
-              [&_a]:font-semibold [&_a]:text-spice-purple [&_a]:no-underline hover:[&_a]:underline
-              [&_h1]:mb-4 [&_h1]:text-3xl [&_h1]:font-bold [&_h1]:leading-tight [&_h1]:text-sk-navy sm:[&_h1]:text-4xl
-              [&_h2]:mb-3 [&_h2]:mt-10 [&_h2]:text-xl [&_h2]:font-bold [&_h2]:text-sk-navy
-              [&_h3]:mb-2 [&_h3]:mt-6 [&_h3]:text-lg [&_h3]:font-semibold [&_h3]:text-sk-navy
-              [&_li]:mb-1 [&_li]:text-sk-text-muted
-              [&_p]:mb-4 [&_p]:leading-relaxed [&_p]:text-sk-text-muted
-              [&_strong]:text-sk-navy
-              [&_table]:mb-6 [&_table]:w-full [&_table]:border-collapse [&_table]:text-left [&_table]:text-sm
-              [&_td]:border [&_td]:border-sk-card-border [&_td]:p-3 [&_td]:text-sk-text-muted
-              [&_th]:border [&_th]:border-sk-card-border [&_th]:bg-sk-purple-light/15 [&_th]:p-3 [&_th]:text-xs [&_th]:font-bold [&_th]:uppercase [&_th]:tracking-wide [&_th]:text-sk-navy
-              [&_tr:nth-child(even)]:bg-sk-body-bg/80
-              [&_ul]:mb-4 [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:text-sk-text-muted
-              [&_hr]:my-10 [&_hr]:border-sk-card-border"
-            dangerouslySetInnerHTML={{ __html: html }}
-          />
-          <div className="mt-8 flex flex-wrap gap-4">
+          <h1
+            className="m-0 mb-4 text-3xl font-extrabold leading-tight text-sk-navy sm:text-4xl"
+            style={{ fontFamily: fontBarlow }}
+          >
+            How much does a private chef or food truck cost in Memphis?
+          </h1>
+          <p className="m-0 mb-10 text-lg leading-relaxed text-sk-text-muted">
+            Transparent ranges help you plan — final quotes depend on your guest count, menu, date, and service style.
+          </p>
+
+          <section className="mb-10">
+            <h2 className="m-0 mb-3 text-xl font-bold text-sk-navy" style={{ fontFamily: fontBarlow }}>
+              Private chef pricing in Memphis
+            </h2>
+            <ul className="m-0 list-disc space-y-2 pl-5 text-sk-text-muted leading-relaxed">
+              <li>
+                <strong className="text-sk-navy">Typical range:</strong> $150–$300 per hour for on-site service
+              </li>
+              <li>
+                <strong className="text-sk-navy">Full event packages:</strong> $500–$3,000+ depending on headcount and
+                menu complexity
+              </li>
+              <li>
+                <strong className="text-sk-navy">Factors:</strong> guest count, menu complexity, duration, travel, and
+                service style (plated vs family-style)
+              </li>
+            </ul>
+          </section>
+
+          <section className="mb-10">
+            <h2 className="m-0 mb-3 text-xl font-bold text-sk-navy" style={{ fontFamily: fontBarlow }}>
+              Food truck pricing in Memphis
+            </h2>
+            <ul className="m-0 list-disc space-y-2 pl-5 text-sk-text-muted leading-relaxed">
+              <li>
+                <strong className="text-sk-navy">Typical range:</strong> $800–$2,500 per event
+              </li>
+              <li>
+                <strong className="text-sk-navy">Corporate packages:</strong> $1,200–$5,000+ for larger headcounts and
+                longer service windows
+              </li>
+              <li>
+                <strong className="text-sk-navy">Factors:</strong> guest count, duration, travel distance, and menu
+              </li>
+            </ul>
+          </section>
+
+          <section className="mb-10 rounded-sk-md border border-sk-gold/30 bg-sk-gold-light/40 p-5">
+            <h2 className="m-0 mb-3 text-xl font-bold text-sk-navy" style={{ fontFamily: fontBarlow }}>
+              SpiceKrewe&apos;s fee
+            </h2>
+            <p className="m-0 text-sk-text-muted leading-relaxed">
+              We charge <strong className="text-sk-navy">5%</strong> of the booking total. You pay the provider&apos;s
+              rate plus 5%. <strong className="text-sk-navy">No hidden fees. No subscription.</strong>
+            </p>
+          </section>
+
+          <div className="flex flex-wrap gap-4">
             <Link
-              to="/hire"
-              className="inline-flex min-h-[44px] items-center justify-center rounded-sk-md bg-spice-purple px-6 py-2.5 text-sm font-bold text-white no-underline shadow-md shadow-spice-purple/30 hover:bg-spice-blue"
+              to="/concierge"
+              className="inline-flex min-h-[44px] items-center justify-center rounded-sk-md px-6 py-2.5 text-sm font-bold text-white no-underline shadow-md"
+              style={{ background: primary, fontFamily: fontBarlow }}
             >
-              Post a project
+              Get a custom quote
             </Link>
             <Link
               to="/talent"
               className="inline-flex min-h-[44px] items-center justify-center rounded-sk-md border border-sk-card-border bg-white px-6 py-2.5 text-sm font-semibold text-spice-purple no-underline hover:bg-sk-purple-light/20"
             >
-              Browse talent
+              Browse chefs &amp; trucks
             </Link>
           </div>
         </div>

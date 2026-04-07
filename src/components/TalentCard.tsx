@@ -4,6 +4,10 @@ import { Check, Star, Heart } from 'lucide-react';
 import type { TalentRecord } from '../types/talentRecord';
 import { useAuth } from '../hooks/useAuth';
 import { getSupabaseBrowserOptional } from '../lib/supabase';
+import { getCulinaryBadgeLabel, getObvTier } from '../lib/credentials/obvTierService';
+
+const fontBarlow = '"Barlow Condensed", system-ui, sans-serif';
+const primaryPurple = '#4d2f91';
 
 type Props = {
   professional: TalentRecord;
@@ -32,6 +36,10 @@ export default function TalentCard({ professional: p, appendTalentIdQuery = fals
 
   const firstName = p.name.trim().split(/\s+/)[0] || p.name;
   const hasReviews = p.reviews > 0;
+  const typeLabel = p.providerType === 'food_truck' ? 'Food truck' : 'Private chef';
+  const obvScore = p.obvScore ?? p.rating * 20;
+  const tierInfo = getObvTier(obvScore, p.reviews);
+  const tierLabel = getCulinaryBadgeLabel(tierInfo.tier);
 
   const showSaveButton = user && role === 'buyer';
 
@@ -137,14 +145,19 @@ export default function TalentCard({ professional: p, appendTalentIdQuery = fals
             <h3 className="m-0 text-[17px] font-semibold leading-tight text-sk-navy">{p.name}</h3>
             {p.verified ? (
               <span
-                className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-sk-gold"
-                title="SK Verified"
-                aria-label="SK Verified"
+                className="inline-flex max-w-full flex-wrap items-center gap-1.5 rounded-sk-pill px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white"
+                style={{ background: primaryPurple, fontFamily: fontBarlow }}
+                title={`SpiceKrewe Verified · ${tierLabel}`}
               >
-                <Check className="h-3 w-3 text-white" strokeWidth={3} aria-hidden />
+                <span className="inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-white/20">
+                  <Check className="h-2.5 w-2.5 text-white" strokeWidth={3} aria-hidden />
+                </span>
+                <span>Verified</span>
+                <span className="font-semibold normal-case tracking-normal opacity-90">· {tierLabel}</span>
               </span>
             ) : null}
           </div>
+          <p className="m-0 text-[12px] font-semibold text-sk-text-subtle">{typeLabel}</p>
           <p className="m-0 text-[13px] font-medium text-sk-purple">{p.role}</p>
         </header>
 
@@ -177,12 +190,15 @@ export default function TalentCard({ professional: p, appendTalentIdQuery = fals
         </div>
 
         <p className={`m-0 mb-4 text-[11px] font-semibold ${p.available ? 'text-sk-purple' : 'text-sk-gold'}`}>
-          {p.available ? 'Available for projects' : 'Currently booked'}
+          {p.available ? 'Open for event bookings' : 'Limited availability'}
         </p>
 
         <div className="mt-auto border-t border-sk-card-border pt-4">
-          <span className="flex w-full min-h-[44px] items-center justify-center rounded-sk-md bg-sk-purple px-4 py-2.5 text-center text-sm font-semibold text-white transition-colors duration-200 ease-out group-hover:bg-sk-navy">
-            Hire {firstName}
+          <span
+            className="flex w-full min-h-[44px] items-center justify-center rounded-sk-md px-4 py-2.5 text-center text-sm font-bold text-white transition-colors duration-200 ease-out group-hover:opacity-95"
+            style={{ background: primaryPurple, fontFamily: fontBarlow }}
+          >
+            Book {firstName}
           </span>
         </div>
       </article>

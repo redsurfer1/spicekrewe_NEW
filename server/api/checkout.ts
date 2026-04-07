@@ -38,7 +38,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
     return;
   }
 
-  const sessionResult = await createStripeCheckoutSession(parsed.data);
+  // Featured matching / hire brief checkout — chef pipeline. TODO: pass explicit flow from caller when UI distinguishes food truck featured checkout.
+  const sessionResult = await createStripeCheckoutSession({
+    ...parsed.data,
+    flow: 'chef_booking',
+  });
   if (!sessionResult.success) {
     res.status(502).json({ error: sessionResult.error.message });
     return;

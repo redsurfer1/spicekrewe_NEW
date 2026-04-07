@@ -14,4 +14,8 @@ export type TalentRecord = {
   avatarText: string;
   tags: string[];
   bio: string;
+  /** OBV-style 0–100 score when synced from platform */
+  obvScore?: number;
+  /** Directory / search cohort */
+  providerType?: 'private_chef' | 'food_truck';
 };

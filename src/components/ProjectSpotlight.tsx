@@ -5,7 +5,7 @@ const AVATAR_SWATCHES = ['var(--sk-purple)', 'var(--sk-gold)', 'var(--sk-blue)']
 const AVATAR_INITIALS = ['MJ', 'AL', 'DN'];
 
 /**
- * Enterprise case spotlight — B2B collaboration social proof (homepage).
+ * Event booking social proof — homepage (narrow model).
  */
 export default function ProjectSpotlight() {
   return (
@@ -14,26 +14,28 @@ export default function ProjectSpotlight() {
         <article className="overflow-hidden rounded-sk-lg border border-sk-gold/25 bg-sk-navy shadow-xl shadow-black/20">
           <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
             <div className="flex flex-col justify-center gap-6 p-8 sm:p-10 lg:p-12">
-              <p className="m-0 text-[11px] font-semibold uppercase tracking-[0.14em] text-sk-gold">Case study</p>
+              <p className="m-0 text-[11px] font-semibold uppercase tracking-[0.14em] text-sk-gold">Success story</p>
               <h2 className="m-0 text-2xl font-semibold leading-snug tracking-tight text-white sm:text-[1.65rem]">
-                Case Study: Shelf-Stable Sauce Formulation
+                Private chef booked for a 20-person anniversary dinner
               </h2>
 
               <dl className="m-0 flex flex-col gap-5 text-[15px] leading-relaxed text-white/90">
                 <div>
-                  <dt className="mb-1 text-[11px] font-semibold uppercase tracking-wider text-sk-gold">Client</dt>
-                  <dd className="m-0 font-medium text-white">Memphis Heritage BBQ Group</dd>
+                  <dt className="mb-1 text-[11px] font-semibold uppercase tracking-wider text-sk-gold">Host</dt>
+                  <dd className="m-0 font-medium text-white">Memphis Heritage BBQ Group (family celebration)</dd>
                 </div>
                 <div>
-                  <dt className="mb-1 text-[11px] font-semibold uppercase tracking-wider text-sk-gold">The challenge</dt>
+                  <dt className="mb-1 text-[11px] font-semibold uppercase tracking-wider text-sk-gold">The event</dt>
                   <dd className="m-0 text-white/88">
-                    Transforming a generational restaurant recipe into a retail-ready, shelf-stable product.
+                    A seated dinner with Southern barbecue touches, dietary accommodations, and full service for twenty
+                    guests at a private home.
                   </dd>
                 </div>
                 <div>
-                  <dt className="mb-1 text-[11px] font-semibold uppercase tracking-wider text-sk-gold">The result</dt>
+                  <dt className="mb-1 text-[11px] font-semibold uppercase tracking-wider text-sk-gold">The outcome</dt>
                   <dd className="m-0 text-white/88">
-                    Successfully launched in 40+ regional grocers within 6 months.
+                    Guests enjoyed a curated menu, on-time service, and a stress-free host experience — booked through
+                    SpiceKrewe verified chefs.
                   </dd>
                 </div>
               </dl>
@@ -56,10 +58,10 @@ export default function ProjectSpotlight() {
               </div>
 
               <Link
-                to="/about"
+                to="/concierge"
                 className="inline-flex w-fit items-center text-sm font-semibold text-sk-purple-light underline-offset-4 transition-colors hover:text-white"
               >
-                See more success stories
+                Plan your event
               </Link>
             </div>
 
@@ -75,7 +77,7 @@ export default function ProjectSpotlight() {
                   <ChefHat className="h-12 w-12 text-sk-gold/90" strokeWidth={1.25} aria-hidden />
                 </div>
                 <p className="m-0 max-w-[240px] text-center text-xs font-medium leading-relaxed text-white/55">
-                  Product formulation &amp; process documentation (illustrative)
+                  Private dining &amp; event service (illustrative)
                 </p>
               </div>
             </div>

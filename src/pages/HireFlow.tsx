@@ -1,6 +1,9 @@
+// CLEAN MODEL 2026-04-02: Client-side Stripe Checkout redirect removed per Flomisma clean model (MOBILE_CODE_REVIEW_v1.md C1).
+// Milestone payments return after Stripe Connect onboarding + backend-created PaymentIntents. See PaymentPlaceholder below.
+
 import { useCallback, useEffect, useMemo, useState, type CSSProperties, type ReactNode } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { Lock, Sparkles, Users } from 'lucide-react';
+import { Sparkles, Users } from 'lucide-react';
 import Navbar from '../components/Navigation';
 import Footer from '../components/Footer';
 import SEO from '../components/SEO';
@@ -11,23 +14,38 @@ import type { CulinaryNeedSummary } from '../lib/ai/briefGenerator';
 import type { MatchRecommendation } from '../lib/ai/matchmaker';
 import { parseHireBrief } from '../lib/validation';
 import { patchBriefRecord, submitProjectBrief } from '../lib/brief-api';
-import { isClientStripeCheckoutEnabled } from '../lib/stripe-config';
 import { getSupabaseBrowserOptional } from '../lib/supabase';
 
 const STEPS = 3;
-const FEATURED_MATCHING_USD = 49;
 
-function parseSkills(raw: string): string[] {
-  return raw
-    .split(/[,;\n]+/)
-    .map((s) => s.trim())
-    .filter(Boolean)
-    .slice(0, 24);
+export function PaymentPlaceholder() {
+  return (
+    <div
+      className="payment-coming-soon"
+      style={{
+        padding: '16px 18px',
+        borderRadius: 'var(--sk-radius-md)',
+        border: '1px solid var(--sk-card-border)',
+        background: 'var(--sk-surface)',
+      }}
+    >
+      <p style={{ margin: 0, fontSize: 15, color: 'var(--sk-text-muted)', lineHeight: 1.55 }}>
+        Milestone payments are coming soon. Your booking request has been submitted.
+      </p>
+    </div>
+  );
+}
+
+function requiredSkillsForBookingNeed(need: 'private_chef' | 'food_truck' | 'both'): string[] {
+  if (need === 'private_chef') return ['Private chef (intimate events)'];
+  if (need === 'food_truck') return ['Food truck (gatherings & outdoor events)'];
+  return ['Private chef (intimate events)', 'Food truck (gatherings & outdoor events)'];
 }
 
 export default function HireFlow() {
   const [searchParams] = useSearchParams();
-  const talentId = searchParams.get('talentId')?.trim() ?? '';
+  const talentId =
+    searchParams.get('talentId')?.trim() || searchParams.get('providerId')?.trim() || '';
   const [hireRoster, setHireRoster] = useState<TalentRecord[]>(() => [...TALENT_FALLBACK]);
 
   useEffect(() => {
@@ -52,7 +70,8 @@ export default function HireFlow() {
   const [projectTitle, setProjectTitle] = useState('');
   const [budgetRange, setBudgetRange] = useState('');
   const [timeline, setTimeline] = useState('');
-  const [requiredSkillsRaw, setRequiredSkillsRaw] = useState('');
+  const [eventBookingNeed, setEventBookingNeed] = useState<'private_chef' | 'food_truck' | 'both'>('private_chef');
+  const [specialRequests, setSpecialRequests] = useState('');
 
   const [aiLoading, setAiLoading] = useState(false);
   const [aiSummary, setAiSummary] = useState<CulinaryNeedSummary | null>(null);
@@ -66,21 +85,12 @@ export default function HireFlow() {
   const [primaryInterestTalentIds, setPrimaryInterestTalentIds] = useState<string[]>([]);
 
   const [savedBriefRecordId, setSavedBriefRecordId] = useState<string | null>(null);
-  const [postingTier, setPostingTier] = useState<'standard' | 'featured'>('standard');
   const [submitLoading, setSubmitLoading] = useState(false);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [paymentError, setPaymentError] = useState<string | null>(null);
 
   const progressPct =
     step === 'success' || step === 'payment' ? 100 : ((step as number) / STEPS) * 100;
-
-  const stripePaymentsEnabled = useMemo(() => isClientStripeCheckoutEnabled(), []);
-
-  useEffect(() => {
-    if (step === 'payment' && !stripePaymentsEnabled && postingTier === 'featured') {
-      setPostingTier('standard');
-    }
-  }, [step, stripePaymentsEnabled, postingTier]);
 
   useEffect(() => {
     const sb = getSupabaseBrowserOptional();
@@ -132,13 +142,17 @@ export default function HireFlow() {
   const handleSubmit = useCallback(async () => {
     setValidationError(null);
     setPaymentError(null);
-    const requiredSkills = parseSkills(requiredSkillsRaw);
+    const requiredSkills = requiredSkillsForBookingNeed(eventBookingNeed);
+    const extra = specialRequests.trim();
+    const fullDescription =
+      extra.length > 0 ? `${description.trim()}\n\nSpecial requests: ${extra}` : description.trim();
     const parsed = parseHireBrief({
       clientName: clientName.trim(),
+      clientEmail: clientEmail.trim(),
       projectTitle: projectTitle.trim(),
       budgetRange: budgetRange.trim(),
       timeline: timeline.trim(),
-      description: description.trim(),
+      description: fullDescription,
       requiredSkills,
       primaryInterestTalentIds,
       sourceTalentId: talentId.trim() || undefined,
@@ -159,7 +173,6 @@ export default function HireFlow() {
     }
 
     setSavedBriefRecordId(submitted.data.recordId);
-    setPostingTier('standard');
     setPaymentError(null);
     setStep('payment');
   }, [
@@ -169,7 +182,8 @@ export default function HireFlow() {
     budgetRange,
     timeline,
     description,
-    requiredSkillsRaw,
+    specialRequests,
+    eventBookingNeed,
     primaryInterestTalentIds,
     talentId,
   ]);
@@ -183,53 +197,34 @@ export default function HireFlow() {
     setStep('success');
   }, [savedBriefRecordId]);
 
-  const handleProceedToCheckout = useCallback(async () => {
-    if (!savedBriefRecordId) return;
-    if (!stripePaymentsEnabled) {
-      setPaymentError('Payments are currently disabled. Complete with a standard listing or try again later.');
-      return;
-    }
-    setPaymentError(null);
-    setCheckoutLoading(true);
-
-    const patched = await patchBriefRecord(savedBriefRecordId, { PostingTier: 'Featured' });
-    if (!patched.success) {
-      setCheckoutLoading(false);
-      setPaymentError(
-        `${patched.error.message} Ensure Supabase is configured and posting_tier is allowed, then try again.`,
-      );
-      return;
-    }
-
-    const { createCheckoutSession } = await import('../lib/stripe');
-    const talentKey = primaryInterestTalentIds.length ? primaryInterestTalentIds.join(';') : '';
-    const checkout = await createCheckoutSession(savedBriefRecordId, FEATURED_MATCHING_USD, {
-      posting_tier: 'featured',
-      talent_ids: talentKey || 'none',
-      source_talent: talentId.trim() || '',
-    });
-
-    if (!checkout.success) {
-      setCheckoutLoading(false);
-      setPaymentError(checkout.error.message);
-      return;
-    }
-
-    window.location.assign(checkout.data);
-  }, [savedBriefRecordId, primaryInterestTalentIds, talentId, stripePaymentsEnabled]);
-
-  const reviewPayload = useMemo(
-    () => ({
+  const reviewPayload = useMemo(() => {
+    const needLabel =
+      eventBookingNeed === 'private_chef'
+        ? 'Private chef (intimate events)'
+        : eventBookingNeed === 'food_truck'
+          ? 'Food truck (gatherings & outdoor events)'
+          : 'Private chef or food truck (concierge decides)';
+    return {
       clientName: clientName.trim(),
       clientEmail: clientEmail.trim(),
       projectTitle: projectTitle.trim(),
       budgetRange: budgetRange.trim(),
       timeline: timeline.trim(),
       description: description.trim(),
-      requiredSkills: parseSkills(requiredSkillsRaw),
-    }),
-    [clientName, clientEmail, projectTitle, budgetRange, timeline, description, requiredSkillsRaw],
-  );
+      specialRequests: specialRequests.trim(),
+      bookingNeedLabel: needLabel,
+      requiredSkills: requiredSkillsForBookingNeed(eventBookingNeed),
+    };
+  }, [
+    clientName,
+    clientEmail,
+    projectTitle,
+    budgetRange,
+    timeline,
+    description,
+    specialRequests,
+    eventBookingNeed,
+  ]);
 
   useEffect(() => {
     if (step !== 3) {
@@ -274,7 +269,7 @@ export default function HireFlow() {
 
   return (
     <div className="min-h-screen flex flex-col" style={{ background: 'var(--sk-body-bg)' }}>
-      <SEO title="Post a project – Spice Krewe" path="/hire" />
+      <SEO title="Tell us about your event – SpiceKrewe" path="/hire" />
       <Navbar />
 
       <main style={{ flex: 1, padding: '24px 16px 48px', width: '100%', boxSizing: 'border-box' }}>
@@ -416,10 +411,11 @@ export default function HireFlow() {
                     lineHeight: 1.3,
                   }}
                 >
-                  Project brief received
+                  Event request received
                 </h1>
                 <p style={{ margin: 0, fontSize: 15, color: 'var(--sk-text-subtle)', lineHeight: 1.65 }}>
-                  Our AI is matching you with professionals. The Spice Krewe team will follow up shortly.
+                  Our concierge is matching you with verified chefs and trucks. The SpiceKrewe team will follow up
+                  shortly.
                 </p>
               </div>
             ) : null}
@@ -435,13 +431,13 @@ export default function HireFlow() {
                     letterSpacing: '-0.02em',
                   }}
                 >
-                  Your project brief
+                  Tell us about your event
                 </h1>
                 <p style={{ margin: '0 0 20px', fontSize: 14, color: 'var(--sk-text-subtle)', lineHeight: 1.55 }}>
-                  Describe what you need—menu work, R&D, styling, events, or consulting. Be as specific as you can.
+                  Guest count, vibe, dietary needs, and venue help us match the right private chef or food truck.
                 </p>
                 <label htmlFor="hire-description" style={{ fontSize: 13, fontWeight: 600, color: 'var(--sk-navy)' }}>
-                  Project description
+                  Tell us about your event
                 </label>
                 <textarea
                   id="hire-description"
@@ -449,7 +445,7 @@ export default function HireFlow() {
                   onChange={(e) => setDescription(e.target.value)}
                   rows={10}
                   disabled={aiLoading}
-                  placeholder="Example: We’re launching a retail sauce line and need recipe scaling, allergen labeling review, and a two-day photoshoot with hero bottle shots…"
+                  placeholder="Example: 24 guests for a backyard anniversary in Midtown—BBQ-forward menu, two vegetarians, need service and cleanup wrapped by 9pm…"
                   style={{
                     width: '100%',
                     maxWidth: '100%',
@@ -510,10 +506,10 @@ export default function HireFlow() {
                     margin: '0 0 8px',
                   }}
                 >
-                  Project details
+                  Event details
                 </h1>
                 <p style={{ margin: '0 0 20px', fontSize: 14, color: 'var(--sk-text-subtle)' }}>
-                  Tell us who you are and how this engagement should work.
+                  Tell us who you are and what you&apos;re looking to book.
                 </p>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
                   <Field label="Your name" htmlFor="hire-client">
@@ -549,42 +545,91 @@ export default function HireFlow() {
                       }}
                     />
                   </Field>
-                  <Field label="Project title" htmlFor="hire-title">
+                  <div>
+                    <p style={{ margin: '0 0 10px', fontSize: 13, fontWeight: 600, color: 'var(--sk-navy)' }}>
+                      What are you looking for?
+                    </p>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                      {(
+                        [
+                          { id: 'need-chef', value: 'private_chef' as const, icon: '🍽', title: 'Private Chef', sub: 'Intimate events, dinners, celebrations' },
+                          { id: 'need-truck', value: 'food_truck' as const, icon: '🚚', title: 'Food Truck', sub: 'Larger gatherings, corporate & outdoor events' },
+                          { id: 'need-both', value: 'both' as const, icon: '🎉', title: 'Both — let the concierge decide', sub: 'We’ll recommend the best fit' },
+                        ] as const
+                      ).map((opt) => (
+                        <label
+                          key={opt.value}
+                          htmlFor={opt.id}
+                          style={{
+                            display: 'flex',
+                            gap: 12,
+                            alignItems: 'flex-start',
+                            padding: '12px 14px',
+                            borderRadius: 'var(--sk-radius-md)',
+                            border:
+                              eventBookingNeed === opt.value
+                                ? '2px solid #4d2f91'
+                                : '1px solid var(--sk-card-border)',
+                            cursor: 'pointer',
+                            background: eventBookingNeed === opt.value ? 'rgba(77, 47, 145, 0.06)' : 'var(--sk-surface)',
+                          }}
+                        >
+                          <input
+                            id={opt.id}
+                            type="radio"
+                            name="event-booking-need"
+                            checked={eventBookingNeed === opt.value}
+                            onChange={() => setEventBookingNeed(opt.value)}
+                            style={{ marginTop: 4, accentColor: '#4d2f91' }}
+                          />
+                          <span>
+                            <span style={{ fontSize: 15, fontWeight: 700, color: 'var(--sk-navy)' }}>
+                              {opt.icon} {opt.title}
+                            </span>
+                            <span style={{ display: 'block', fontSize: 13, color: 'var(--sk-text-muted)', marginTop: 4 }}>
+                              {opt.sub}
+                            </span>
+                          </span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                  <Field label="Event name" htmlFor="hire-title">
                     <input
                       id="hire-title"
                       value={projectTitle}
                       onChange={(e) => setProjectTitle(e.target.value)}
-                      placeholder="e.g. Q3 sauce line launch"
+                      placeholder="e.g. Johnson anniversary dinner"
                       style={inputStyle}
                     />
                   </Field>
-                  <Field label="Budget range" htmlFor="hire-budget">
+                  <Field label="Event budget" htmlFor="hire-budget">
                     <input
                       id="hire-budget"
                       value={budgetRange}
                       onChange={(e) => setBudgetRange(e.target.value)}
-                      placeholder="e.g. $5k–$8k"
+                      placeholder="e.g. $2.5k–$4k all-in"
                       style={inputStyle}
                     />
                   </Field>
-                  <Field label="Timeline" htmlFor="hire-timeline">
+                  <Field label="Event date" htmlFor="hire-timeline">
                     <input
                       id="hire-timeline"
                       value={timeline}
                       onChange={(e) => setTimeline(e.target.value)}
-                      placeholder="e.g. Kickoff in 2 weeks, deliver by end of month"
+                      placeholder="e.g. Saturday, May 18 — dinner service 6–9pm"
                       style={inputStyle}
                     />
                   </Field>
                   <Field
-                    label="Required specialties"
-                    htmlFor="hire-skills"
-                    hint="Comma-separated (e.g. recipe development, food styling)"
+                    label="Special requests"
+                    htmlFor="hire-special"
+                    hint="Optional — parking, equipment, kids menu, surprise dessert, etc."
                   >
                     <input
-                      id="hire-skills"
-                      value={requiredSkillsRaw}
-                      onChange={(e) => setRequiredSkillsRaw(e.target.value)}
+                      id="hire-special"
+                      value={specialRequests}
+                      onChange={(e) => setSpecialRequests(e.target.value)}
                       style={inputStyle}
                     />
                   </Field>
@@ -751,7 +796,7 @@ export default function HireFlow() {
                       {aiSummary.headline}
                     </p>
                     <p style={{ margin: '0 0 8px', fontSize: 12, fontWeight: 600, color: 'var(--sk-purple)' }}>
-                      Suggested deliverables
+                      Suggested next steps
                     </p>
                     <ul style={{ margin: 0, paddingLeft: 18, color: 'var(--sk-text-muted)', fontSize: 14, lineHeight: 1.55 }}>
                       {aiSummary.suggestedDeliverables.map((item) => (
@@ -765,12 +810,15 @@ export default function HireFlow() {
 
                 <ReviewBlock title="Client" value={reviewPayload.clientName} />
                 <ReviewBlock title="Email" value={reviewPayload.clientEmail} />
-                <ReviewBlock title="Project" value={reviewPayload.projectTitle} />
+                <ReviewBlock title="Event" value={reviewPayload.projectTitle} />
                 <ReviewBlock title="Budget" value={reviewPayload.budgetRange} />
-                <ReviewBlock title="Timeline" value={reviewPayload.timeline} />
-                <ReviewBlock title="Skills" value={reviewPayload.requiredSkills.join(', ') || '—'} />
+                <ReviewBlock title="Event date" value={reviewPayload.timeline} />
+                <ReviewBlock title="Looking for" value={reviewPayload.bookingNeedLabel} />
+                <ReviewBlock title="Special requests" value={reviewPayload.specialRequests || '—'} />
                 <div style={{ marginTop: 16 }}>
-                  <p style={{ fontSize: 12, fontWeight: 600, color: 'var(--sk-navy)', marginBottom: 6 }}>Description</p>
+                  <p style={{ fontSize: 12, fontWeight: 600, color: 'var(--sk-navy)', marginBottom: 6 }}>
+                    Event details
+                  </p>
                   <p
                     style={{
                       margin: 0,
@@ -788,7 +836,6 @@ export default function HireFlow() {
                   </p>
                 </div>
 
-                <div style={{ marginTop: 22 }}>{stripePaymentsEnabled ? <SecurePaymentBadge /> : null}</div>
               </>
             ) : null}
 
@@ -802,56 +849,16 @@ export default function HireFlow() {
                     margin: '0 0 8px',
                   }}
                 >
-                  Proceed to payment
+                  Next steps
                 </h1>
                 <p style={{ margin: '0 0 20px', fontSize: 14, color: 'var(--sk-text-subtle)', lineHeight: 1.55 }}>
-                  Your brief is saved. Choose a standard listing at no charge, or featured matching to prioritize
-                  outreach and placement ($49).
+                  Your request is saved. Finish below to confirm your standard listing (no charge until the event is
+                  confirmed).
                 </p>
-
-                {!stripePaymentsEnabled ? (
-                  <div
-                    role="status"
-                    style={{
-                      marginBottom: 18,
-                      padding: '14px 16px',
-                      borderRadius: 'var(--sk-radius-md)',
-                      background: 'var(--sk-gold-light)',
-                      border: '1px solid rgba(230, 168, 0, 0.45)',
-                      fontSize: 14,
-                      lineHeight: 1.55,
-                      color: 'var(--sk-navy)',
-                    }}
-                  >
-                    <strong style={{ color: 'var(--sk-gold)', display: 'block', marginBottom: 6 }}>
-                      Payments currently disabled
-                    </strong>
-                    Featured checkout needs Stripe keys in the environment. You can still finish with a{' '}
-                    <strong>standard listing at no charge</strong>—your brief is already saved.
-                  </div>
-                ) : null}
-
-                <div role="radiogroup" aria-label="Posting tier" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                  <TierCard
-                    selected={postingTier === 'standard'}
-                    onSelect={() => setPostingTier('standard')}
-                    title="Standard posting"
-                    subtitle="Free"
-                    body="List your project in our queue. We’ll still route it to the Krewe when there’s a fit."
-                  />
-                  <TierCard
-                    selected={postingTier === 'featured'}
-                    onSelect={() => {
-                      if (stripePaymentsEnabled) setPostingTier('featured');
-                    }}
-                    disabled={!stripePaymentsEnabled}
-                    title="Featured matching"
-                    subtitle={`$${FEATURED_MATCHING_USD}`}
-                    body="Prioritized matching and concierge placement. Secure checkout powered by Stripe."
-                  />
-                </div>
-
-                <div style={{ marginTop: 22 }}>{stripePaymentsEnabled ? <SecurePaymentBadge /> : null}</div>
+                <PaymentPlaceholder />
+                <p style={{ margin: '16px 0 0', fontSize: 13, color: 'var(--sk-text-muted)', lineHeight: 1.55 }}>
+                  You will not be charged until your event is confirmed. Secure payment via Stripe.
+                </p>
               </>
             ) : null}
 
@@ -907,10 +914,15 @@ export default function HireFlow() {
                       cursor: submitLoading ? 'wait' : 'pointer',
                     }}
                   >
-                    {submitLoading ? 'Saving…' : 'Submit brief'}
+                    {submitLoading ? 'Saving…' : 'Submit event request'}
                   </button>
                 )}
               </div>
+            ) : null}
+            {step === 3 ? (
+              <p style={{ margin: '12px 0 0', fontSize: 13, color: 'var(--sk-text-muted)', lineHeight: 1.55 }}>
+                You will not be charged until your event is confirmed. Secure payment via Stripe.
+              </p>
             ) : null}
 
             {step === 'payment' ? (
@@ -921,31 +933,15 @@ export default function HireFlow() {
                 <button
                   type="button"
                   onClick={() => void handleCompleteStandard()}
-                  disabled={checkoutLoading || postingTier !== 'standard'}
+                  disabled={checkoutLoading}
                   className="w-full sm:w-auto sm:min-w-[200px]"
                   style={{
-                    ...ghostBtn,
-                    opacity: postingTier !== 'standard' || checkoutLoading ? 0.5 : 1,
-                    cursor: postingTier !== 'standard' || checkoutLoading ? 'not-allowed' : 'pointer',
+                    ...primaryBtn,
+                    opacity: checkoutLoading ? 0.75 : 1,
+                    cursor: checkoutLoading ? 'wait' : 'pointer',
                   }}
                 >
-                  {checkoutLoading && postingTier === 'standard' ? 'Please wait…' : 'Complete — standard (free)'}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => void handleProceedToCheckout()}
-                  disabled={checkoutLoading || postingTier !== 'featured' || !stripePaymentsEnabled}
-                  className="w-full sm:w-auto sm:min-w-[240px]"
-                  style={{
-                    ...proceedBtn,
-                    opacity: postingTier !== 'featured' || checkoutLoading || !stripePaymentsEnabled ? 0.5 : 1,
-                    cursor:
-                      postingTier !== 'featured' || checkoutLoading || !stripePaymentsEnabled
-                        ? 'not-allowed'
-                        : 'pointer',
-                  }}
-                >
-                  {checkoutLoading && postingTier === 'featured' ? 'Opening checkout…' : 'Proceed to secure checkout'}
+                  {checkoutLoading ? 'Please wait…' : 'Finish — confirm standard listing'}
                 </button>
               </div>
             ) : null}
@@ -987,19 +983,13 @@ const primaryBtn: CSSProperties = {
   minHeight: 44,
   padding: '12px 22px',
   fontSize: 16,
-  fontWeight: 600,
+  fontWeight: 700,
   borderRadius: 'var(--sk-radius-md)',
   border: 'none',
-  background: 'var(--sk-purple)',
+  background: '#4d2f91',
   color: '#fff',
   boxSizing: 'border-box',
-};
-
-/** Featured checkout CTA — explicit brand token for Phase 5 payment flow. */
-const proceedBtn: CSSProperties = {
-  ...primaryBtn,
-  background: 'var(--sk-purple)',
-  color: '#fff',
+  fontFamily: '"Barlow Condensed", system-ui, sans-serif',
 };
 
 function Field({
@@ -1034,97 +1024,3 @@ function ReviewBlock({ title, value }: { title: string; value: string }) {
   );
 }
 
-function SecurePaymentBadge() {
-  return (
-    <div
-      style={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        flexWrap: 'wrap',
-        gap: 10,
-        padding: '10px 14px',
-        borderRadius: 'var(--sk-radius-md)',
-        border: '1px solid var(--sk-card-border)',
-        background: 'rgba(77, 47, 145, 0.04)',
-      }}
-    >
-      <Lock size={18} color="var(--sk-purple)" strokeWidth={2} aria-hidden />
-      <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--sk-navy)' }}>Secure payment</span>
-      <span style={{ color: 'var(--sk-muted-purple)', fontSize: 12 }}>·</span>
-      <a
-        href="https://stripe.com"
-        target="_blank"
-        rel="noopener noreferrer"
-        style={{ display: 'inline-flex', alignItems: 'center', textDecoration: 'none' }}
-        aria-label="Stripe — payments infrastructure"
-      >
-        <StripeLogoMark />
-      </a>
-    </div>
-  );
-}
-
-function StripeLogoMark() {
-  return (
-    <svg width="56" height="22" viewBox="0 0 56 22" aria-hidden style={{ flexShrink: 0 }}>
-      <text
-        x="0"
-        y="17"
-        style={{
-          fill: 'var(--sk-stripe-wordmark)',
-          fontSize: '17px',
-          fontFamily: 'system-ui, -apple-system, Segoe UI, sans-serif',
-          fontWeight: 700,
-        }}
-      >
-        stripe
-      </text>
-    </svg>
-  );
-}
-
-function TierCard({
-  selected,
-  onSelect,
-  disabled,
-  title,
-  subtitle,
-  body,
-}: {
-  selected: boolean;
-  onSelect: () => void;
-  disabled?: boolean;
-  title: string;
-  subtitle: string;
-  body: string;
-}) {
-  return (
-    <button
-      type="button"
-      role="radio"
-      aria-checked={selected}
-      aria-disabled={disabled ? true : undefined}
-      disabled={disabled}
-      onClick={() => {
-        if (!disabled) onSelect();
-      }}
-      style={{
-        textAlign: 'left',
-        width: '100%',
-        padding: '14px 16px',
-        borderRadius: 'var(--sk-radius-md)',
-        border: selected ? '2px solid var(--sk-purple)' : '1px solid var(--sk-card-border)',
-        background: selected ? 'rgba(77, 47, 145, 0.06)' : 'var(--sk-surface)',
-        cursor: disabled ? 'not-allowed' : 'pointer',
-        boxSizing: 'border-box',
-        opacity: disabled ? 0.55 : 1,
-      }}
-    >
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 12 }}>
-        <span style={{ fontSize: 16, fontWeight: 700, color: 'var(--sk-navy)' }}>{title}</span>
-        <span style={{ fontSize: 15, fontWeight: 700, color: 'var(--sk-purple)' }}>{subtitle}</span>
-      </div>
-      <p style={{ margin: '8px 0 0', fontSize: 13, color: 'var(--sk-text-subtle)', lineHeight: 1.5 }}>{body}</p>
-    </button>
-  );
-}
