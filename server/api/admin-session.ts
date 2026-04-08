@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { mintAdminToken } from '../../server/lib/admin-token.js';
+import { mintAdminToken } from '../lib/admin-token.js';
 
 function cors(res: VercelResponse, origin: string | undefined): void {
   const allow = process.env.SERVER_ALLOWED_ORIGIN?.trim() || origin || '*';

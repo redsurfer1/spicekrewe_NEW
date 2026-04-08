@@ -1,19 +1,19 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { rateLimiter } from '../../server/middleware/rateLimiter.js';
-import { validateServerEnv } from '../../server/lib/env-validator.js';
-import { readBearerToken, verifyAdminToken } from '../../server/lib/admin-token.js';
+import { rateLimiter } from '../middleware/rateLimiter.js';
+import { validateServerEnv } from '../lib/env-validator.js';
+import { readBearerToken, verifyAdminToken } from '../lib/admin-token.js';
 import {
   listRecentBriefsForHealth,
   measureSupabaseLatencyMs,
   pingSupabaseBriefs,
-} from '../../server/lib/supabase-brief.js';
-import type { BriefAuditRow } from '../../server/lib/supabase-brief.js';
-import { getRecentMatchmakerLogs } from '../../server/lib/matchmakerAlerts.js';
-import { listMatchmakerLogsFromDb } from '../../server/lib/matchmakerLogDb.js';
-import { getMatchQualityLast30d, getTrdPipelineLast24h } from '../../server/lib/health-metrics.js';
-import { evaluateStripeCheckoutTrdHealth } from '../../server/lib/stripe-checkout-health.js';
-import { getSlaMonitorStatus } from '../../server/lib/sla-monitor-status.js';
-import { DATA_PROTECTION_POSTURE_VERSION } from '../../server/lib/crypto.js';
+} from '../lib/supabase-brief.js';
+import type { BriefAuditRow } from '../lib/supabase-brief.js';
+import { getRecentMatchmakerLogs } from '../lib/matchmakerAlerts.js';
+import { listMatchmakerLogsFromDb } from '../lib/matchmakerLogDb.js';
+import { getMatchQualityLast30d, getTrdPipelineLast24h } from '../lib/health-metrics.js';
+import { evaluateStripeCheckoutTrdHealth } from '../lib/stripe-checkout-health.js';
+import { getSlaMonitorStatus } from '../lib/sla-monitor-status.js';
+import { DATA_PROTECTION_POSTURE_VERSION } from '../lib/crypto.js';
 
 function cors(res: VercelResponse, origin: string | undefined): void {
   const allow = process.env.SERVER_ALLOWED_ORIGIN?.trim() || origin || '*';

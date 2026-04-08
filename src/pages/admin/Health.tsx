@@ -102,7 +102,7 @@ export default function AdminHealthPage() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(apiPath('/api/admin/health'), {
+      const res = await fetch(apiPath('/api/admin?action=health'), {
         headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' },
       });
       if (res.status === 401) {
@@ -117,7 +117,7 @@ export default function AdminHealthPage() {
         return;
       }
       // Fetch secrets health in parallel
-      const secretsRes = await fetch(apiPath('/api/admin/secrets-health'), {
+      const secretsRes = await fetch(apiPath('/api/admin?action=secrets-health'), {
         headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' },
       });
       let secretsHealth: HealthPayload['secretsHealth'] | undefined;

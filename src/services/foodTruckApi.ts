@@ -30,7 +30,8 @@ export async function searchFoodTrucksByCuisine(
   const q = new URLSearchParams({ citySlug: params.citySlug });
   if (params.cuisine) q.set('cuisineType', params.cuisine);
   if (params.headcount != null) q.set('minCapacity', String(params.headcount));
-  const res = await fetch(`${API_BASE}/food-trucks-search?${q.toString()}`);
+  q.set('action', 'search');
+  const res = await fetch(`${API_BASE}/food-trucks?${q.toString()}`);
   if (res.status === 404) {
     return [];
   }
@@ -62,7 +63,8 @@ export async function checkTruckCapacity(
   serviceRadius: string;
 }> {
   const q = new URLSearchParams({ providerId: truckId, headcount: String(headcount) });
-  const res = await fetch(`${API_BASE}/food-trucks-capacity?${q.toString()}`);
+  q.set('action', 'capacity');
+  const res = await fetch(`${API_BASE}/food-trucks?${q.toString()}`);
   if (res.status === 404) {
     return {
       ok: headcount <= 500,
@@ -109,7 +111,8 @@ export async function fetchTruckAvailability(
 }> {
   const q = new URLSearchParams({ providerId: truckId, date: dateIso });
   if (durationHours != null) q.set('duration', String(durationHours));
-  const res = await fetch(`${API_BASE}/food-trucks-availability?${q.toString()}`);
+  q.set('action', 'availability');
+  const res = await fetch(`${API_BASE}/food-trucks?${q.toString()}`);
   if (res.status === 404) {
     return { providerId: truckId, date: dateIso, isAvailable: true, confirmedBookings: 0 };
   }
@@ -142,7 +145,7 @@ export async function submitFoodTruckBooking(
   payload: FoodTruckBookingPayload,
 ): Promise<{ bookingId: string | null; clientSecret: string | null; amount: number; platformFee: number }> {
   const date = payload.eventStart.slice(0, 10);
-  const res = await fetch(`${API_BASE}/food-trucks-book`, {
+  const res = await fetch(`${API_BASE}/food-trucks?action=book`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({

@@ -43,7 +43,7 @@ export default function AdminDashboard() {
     setLoginLoading(true);
     setError('');
     try {
-      const res = await fetch(apiPath('/api/admin/session'), {
+      const res = await fetch(apiPath('/api/admin?action=session'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
         body: JSON.stringify({ password }),

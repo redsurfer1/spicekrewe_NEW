@@ -100,7 +100,7 @@ export async function submitConciergeBrief(
   }>
 > {
   try {
-    const response = await fetch(`${API_BASE_URL}/concierge-submit`, {
+    const response = await fetch(`${API_BASE_URL}/concierge?action=submit`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
       body: JSON.stringify(brief),
@@ -150,7 +150,7 @@ export async function acceptConciergePackage(
   buyerId: string,
 ): Promise<ApiResponse<{ success?: boolean; briefId?: string; providersNotified?: number }>> {
   try {
-    const response = await fetch(`${API_BASE_URL}/concierge-accept`, {
+    const response = await fetch(`${API_BASE_URL}/concierge?action=accept`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
       body: JSON.stringify({ briefId, packageId, buyerId }),
@@ -178,7 +178,7 @@ export async function respondToBooking(
   action: 'accept' | 'decline',
 ): Promise<ApiResponse> {
   try {
-    const response = await fetch(`${API_BASE_URL}/concierge-provider-response`, {
+    const response = await fetch(`${API_BASE_URL}/concierge?action=provider-response`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
       body: JSON.stringify({ briefId, providerId, action }),

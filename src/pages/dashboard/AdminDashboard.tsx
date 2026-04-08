@@ -194,7 +194,7 @@ function QualityPanel() {
       setLoading(true);
       setError(null);
       try {
-        const res = await fetch('/api/admin/health', {
+        const res = await fetch('/api/admin?action=health', {
           headers: { Accept: 'application/json' },
         });
         const json = (await res.json()) as { matchQuality?: MatchQuality; error?: string };

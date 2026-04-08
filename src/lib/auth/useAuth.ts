@@ -24,13 +24,10 @@ function logAuthEvent(
   email?: string,
   metadata?: Record<string, unknown>,
 ): void {
-  void fetch('/api/auth-events', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ event, userId, email, metadata }),
-  }).catch(() => {
-    /* non-blocking */
-  });
+  void event;
+  void userId;
+  void email;
+  void metadata;
 }
 
 function toSpiceKreweUser(user: User, profile: ProfileRow | null): SpiceKreweUser {
