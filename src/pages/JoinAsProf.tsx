@@ -104,7 +104,7 @@ export default function JoinAsProf() {
           </p>
           <ul className="mx-auto mt-6 max-w-md list-none space-y-2 p-0 text-left text-sm text-sk-navy">
             <li>✓ Free to join and list</li>
-            <li>✓ AI concierge sends you qualified leads</li>
+            <li>✓ Our concierge sends you qualified leads</li>
             <li>✓ Get paid securely through Stripe</li>
           </ul>
         </header>
@@ -132,10 +132,7 @@ export default function JoinAsProf() {
               }}
               className="rounded-sk-lg border-2 border-sk-card-border bg-white p-6 text-left shadow-sm transition-colors hover:border-sk-purple"
             >
-              <div className="text-3xl" aria-hidden>
-                👨‍🍳
-              </div>
-              <h2 className="mt-3 text-xl font-bold text-sk-navy" style={{ fontFamily: fontBarlow }}>
+              <h2 className="text-xl font-bold text-sk-navy" style={{ fontFamily: fontBarlow }}>
                 I am a Private Chef
               </h2>
               <p className="mt-2 text-sm leading-relaxed text-sk-text-muted">
@@ -150,10 +147,7 @@ export default function JoinAsProf() {
               }}
               className="rounded-sk-lg border-2 border-sk-card-border bg-white p-6 text-left shadow-sm transition-colors hover:border-sk-purple"
             >
-              <div className="text-3xl" aria-hidden>
-                🚚
-              </div>
-              <h2 className="mt-3 text-xl font-bold text-sk-navy" style={{ fontFamily: fontBarlow }}>
+              <h2 className="text-xl font-bold text-sk-navy" style={{ fontFamily: fontBarlow }}>
                 I operate a Food Truck
               </h2>
               <p className="mt-2 text-sm leading-relaxed text-sk-text-muted">

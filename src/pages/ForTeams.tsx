@@ -80,7 +80,7 @@ export default function ForTeams() {
           <li>✓ Verified chefs and food trucks</li>
           <li>✓ Scales from 10 to 200+ people</li>
           <li>✓ Single invoice, secure payment</li>
-          <li>✓ AI concierge handles vendor selection</li>
+          <li>✓ Our concierge handles vendor selection</li>
         </ul>
       </section>
 
